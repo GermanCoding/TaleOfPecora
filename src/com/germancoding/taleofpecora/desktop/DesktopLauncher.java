@@ -17,6 +17,7 @@ public class DesktopLauncher {
 
 	private static boolean rebuildAtlas = false;
 	private static boolean drawDebugOutline = false;
+	
 
 	static int IMG_WIDTH = 148;
 	static int IMG_HEIGHT = 178;
