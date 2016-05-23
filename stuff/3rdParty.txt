@@ -1,0 +1,20 @@
+Third-party software this game uses:
+- libGDX by badlogicgames - https://libgdx.badlogicgames.com
+- Box2D (included within LibGDX) - http://box2d.org/
+- Overlap2D by UnderwaterApps - http://overlap2d.com/
+- Imgscalr by thebuzzmedia - https://github.com/thebuzzmedia/imgscalr
+- gradle by Gradle Inc - http://gradle.org/
+- assets: 
+	- http://www.gameart2d.com/ - Free assets license: https://creativecommons.org/publicdomain/zero/1.0/
+	- http://opengameart.org/content/easter-carrot-pick-up-item 
+	- some demo textures from Overlap2d
+	- WrathGames Studio - http://wrathgames.com/blog
+- Font: Kirby No Kira Kizzu BRK Font - http://www.1001fonts.com/kirby-no-kira-kizzu-brk-font.html
+- Music by http://incompetech.com/ Kevin McLeod
+	- Drums of the Deep
+	- Lord of the Land
+	- Master of the Feast
+- Java - http://java.com/
+- LWJGL by the Lightweight Java Game Library Project - https://www.lwjgl.org/
+- JLayer by Javazoom - http://javazoom.net/javalayer/javalayer.html
+- JCraft by JCraft Inc. - http://www.jcraft.com/jorbis/
