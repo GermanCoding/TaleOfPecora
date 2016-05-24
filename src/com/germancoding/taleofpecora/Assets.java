@@ -10,6 +10,8 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 
+@Deprecated
+/* Class no longer in use, can be removed */
 public class Assets implements Disposable, AssetErrorListener {
 
 	public static final String TAG = Assets.class.getName();
@@ -133,7 +135,7 @@ public class Assets implements Disposable, AssetErrorListener {
 			three = atlas.findRegion("Tree3");
 		}
 	}
-	
+
 	public class AssetTile {
 		public final AtlasRegion one;
 		public final AtlasRegion two;
@@ -153,7 +155,7 @@ public class Assets implements Disposable, AssetErrorListener {
 		public final AtlasRegion sixteen;
 		public final AtlasRegion seventeen;
 		public final AtlasRegion eighteen;
-		
+
 		public AssetTile(TextureAtlas atlas) {
 			super();
 			this.one = atlas.findRegion("Tile1");
@@ -175,7 +177,7 @@ public class Assets implements Disposable, AssetErrorListener {
 			this.seventeen = atlas.findRegion("Tile17");
 			this.eighteen = atlas.findRegion("Tile18");
 		}
-		
+
 	}
 	// --- Assets END --- //
 }

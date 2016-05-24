@@ -5,6 +5,8 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Disposable;
 
+@Deprecated
+/* Class no longer in use, can be removed */
 public class WorldRenderer implements Disposable {
 
 	private OrthographicCamera camera;
@@ -24,8 +26,7 @@ public class WorldRenderer implements Disposable {
 
 	private void init() {
 		batch = new SpriteBatch();
-		camera = new OrthographicCamera(Constants.VIEWPORT_WIDTH,
-				Constants.VIEWPORT_HEIGHT);
+		camera = new OrthographicCamera(Constants.VIEWPORT_WIDTH, Constants.VIEWPORT_HEIGHT);
 		camera.position.set(0, 0, 0);
 		camera.update();
 	}
@@ -45,8 +46,7 @@ public class WorldRenderer implements Disposable {
 	}
 
 	public void resize(int width, int height) {
-		camera.viewportWidth = (Constants.VIEWPORT_HEIGHT / height) *
-				width;
+		camera.viewportWidth = (Constants.VIEWPORT_HEIGHT / height) * width;
 		camera.update();
 	}
 

@@ -5,10 +5,12 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 
+@Deprecated
+/* Class no longer in use, can be removed */
 public class CameraHelper {
 	@SuppressWarnings("unused")
 	private static final String TAG = CameraHelper.class.getName();
-	
+
 	private final float MAX_ZOOM_IN = 0.25f;
 	private final float MAX_ZOOM_OUT = 10.0f;
 	private Vector2 position;

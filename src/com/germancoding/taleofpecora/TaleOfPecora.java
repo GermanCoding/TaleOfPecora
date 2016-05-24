@@ -38,8 +38,8 @@ public class TaleOfPecora extends ApplicationAdapter {
 
 	private boolean paused;
 
-	private WorldController worldController;
-	private WorldRenderer worldRenderer;
+	// private WorldController worldController;
+	// private WorldRenderer worldRenderer;
 
 	private SceneLoader sceneLoader;
 	private SceneVO currentScene;
@@ -404,8 +404,6 @@ public class TaleOfPecora extends ApplicationAdapter {
 		backgroundStage = null;
 		scheduler = null;
 		player = null;
-		setWorldController(null);
-		setWorldRenderer(null);
 		sceneLoader = null;
 		currentScene = null;
 		root = null;
@@ -502,21 +500,5 @@ public class TaleOfPecora extends ApplicationAdapter {
 				doReset = true;
 			}
 		}).start();
-	}
-
-	public WorldController getWorldController() {
-		return worldController;
-	}
-
-	public void setWorldController(WorldController worldController) {
-		this.worldController = worldController;
-	}
-
-	public WorldRenderer getWorldRenderer() {
-		return worldRenderer;
-	}
-
-	public void setWorldRenderer(WorldRenderer worldRenderer) {
-		this.worldRenderer = worldRenderer;
 	}
 }

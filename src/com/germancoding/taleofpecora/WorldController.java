@@ -8,6 +8,8 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Array;
 
+@Deprecated
+/* Class no longer in use, can be removed */
 public class WorldController extends InputAdapter {
 
 	private static final String TAG = WorldController.class.getName();
@@ -67,47 +69,38 @@ public class WorldController extends InputAdapter {
 		// Selected Sprite Controls
 		float sprMoveSpeed = 5 * deltaTime;
 		if (Gdx.input.isKeyPressed(Keys.A))
-			moveSelectedSprite(
-					-sprMoveSpeed, 0);
+			moveSelectedSprite(-sprMoveSpeed, 0);
 		if (Gdx.input.isKeyPressed(Keys.D))
 			moveSelectedSprite(sprMoveSpeed, 0);
 		if (Gdx.input.isKeyPressed(Keys.W))
-			moveSelectedSprite(0,
-					sprMoveSpeed);
+			moveSelectedSprite(0, sprMoveSpeed);
 		if (Gdx.input.isKeyPressed(Keys.S))
-			moveSelectedSprite(0,
-					-sprMoveSpeed);
+			moveSelectedSprite(0, -sprMoveSpeed);
 
 		// Camera Controls (move)
 		float camMoveSpeed = 5 * deltaTime;
 		float camMoveSpeedAccelerationFactor = 5;
 		if (Gdx.input.isKeyPressed(Keys.SHIFT_LEFT))
-			camMoveSpeed *=
-					camMoveSpeedAccelerationFactor;
+			camMoveSpeed *= camMoveSpeedAccelerationFactor;
 		if (Gdx.input.isKeyPressed(Keys.LEFT))
-			moveCamera(-camMoveSpeed,
-					0);
+			moveCamera(-camMoveSpeed, 0);
 		if (Gdx.input.isKeyPressed(Keys.RIGHT))
-			moveCamera(camMoveSpeed,
-					0);
+			moveCamera(camMoveSpeed, 0);
 		if (Gdx.input.isKeyPressed(Keys.UP))
 			moveCamera(0, camMoveSpeed);
 		if (Gdx.input.isKeyPressed(Keys.DOWN))
-			moveCamera(0,
-					-camMoveSpeed);
+			moveCamera(0, -camMoveSpeed);
 		if (Gdx.input.isKeyPressed(Keys.BACKSPACE))
 			cameraHelper.setPosition(0, 0);
 		// Camera Controls (zoom)
 		float camZoomSpeed = 1 * deltaTime;
 		float camZoomSpeedAccelerationFactor = 5;
 		if (Gdx.input.isKeyPressed(Keys.SHIFT_LEFT))
-			camZoomSpeed *=
-					camZoomSpeedAccelerationFactor;
+			camZoomSpeed *= camZoomSpeedAccelerationFactor;
 		if (Gdx.input.isKeyPressed(Keys.COMMA))
 			cameraHelper.addZoom(camZoomSpeed);
 		if (Gdx.input.isKeyPressed(Keys.PERIOD))
-			cameraHelper.addZoom(
-					-camZoomSpeed);
+			cameraHelper.addZoom(-camZoomSpeed);
 		if (Gdx.input.isKeyPressed(Keys.SLASH))
 			cameraHelper.setZoom(1);
 	}
@@ -152,10 +145,8 @@ public class WorldController extends InputAdapter {
 		}
 		// Toggle camera follow
 		else if (keycode == Keys.ENTER) {
-			cameraHelper.setTarget(cameraHelper.hasTarget() ? null :
-					testSprites[selectedSprite]);
-			Gdx.app.debug(TAG, "Camera follow enabled: " +
-					cameraHelper.hasTarget());
+			cameraHelper.setTarget(cameraHelper.hasTarget() ? null : testSprites[selectedSprite]);
+			Gdx.app.debug(TAG, "Camera follow enabled: " + cameraHelper.hasTarget());
 		}
 		return false;
 	}
