@@ -39,6 +39,7 @@ public abstract class LivingEntity {
 	public boolean firstFrame = true;
 	public boolean applyGravity = true;
 	public boolean inWater;
+	public boolean onMoveableObject;
 
 	public LivingEntity(World world, TaleOfPecora game) {
 		this.world = world;
@@ -51,6 +52,7 @@ public abstract class LivingEntity {
 		if (isDying)
 			return;
 		onGround = false;
+		onMoveableObject = false;
 		velocity.y = height;
 	}
 
@@ -67,6 +69,7 @@ public abstract class LivingEntity {
 			transform.scaleX = transform.scaleX * -1;
 			transform.x -= dimension.width;
 		}
+		onMoveableObject = false;
 	}
 
 	public void turnLeft() {
@@ -74,6 +77,7 @@ public abstract class LivingEntity {
 			transform.scaleX = transform.scaleX * -1;
 			transform.x += dimension.width;
 		}
+		onMoveableObject = false;
 	}
 
 	public void move(float delta) {
@@ -100,6 +104,11 @@ public abstract class LivingEntity {
 			} else if (velocity.x <= -Constants.PLAYER_WATERSPEED) {
 				velocity.x = -Constants.PLAYER_WATERSPEED;
 			}
+		}
+
+		if (velocity.y < -9.81f) {
+			System.out.println("platform reset due to high velocity");
+			onMoveableObject = false;
 		}
 
 		transform.x += velocity.x * delta;
@@ -357,9 +366,11 @@ public abstract class LivingEntity {
 						Entity e = (Entity) fixture.getBody().getUserData();
 						Platform platform = mapper.get(e);
 						if (platform != null) {
-							velocity.y = platform.velocity.y;
-							velocity.x = platform.velocity.x;
+							System.out.println("Platform detect");
+							velocity.y = platform.velocity.y * 15f;
+							velocity.x = platform.velocity.x * 15f;
 							move(delta);
+							onMoveableObject = true;
 						} else {
 							velocity.y = 0;
 						}

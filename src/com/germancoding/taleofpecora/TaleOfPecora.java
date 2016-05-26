@@ -67,7 +67,55 @@ public class TaleOfPecora extends ApplicationAdapter {
 		instance = this;
 	}
 
-	public float[] levels = { 190f }; // Length of the different levels
+	public float[] levels = { 190f, 30f }; // Length of the different levels
+
+	public InputProcessor mainInputProcessor = new InputProcessor() {
+
+		@Override
+		public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+			return false;
+		}
+
+		@Override
+		public boolean touchDragged(int screenX, int screenY, int pointer) {
+			return false;
+		}
+
+		@Override
+		public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+			return false;
+		}
+
+		@Override
+		public boolean scrolled(int amount) {
+			return false;
+		}
+
+		@Override
+		public boolean mouseMoved(int screenX, int screenY) {
+			return false;
+		}
+
+		@Override
+		public boolean keyUp(int keycode) {
+			return false;
+		}
+
+		@Override
+		public boolean keyTyped(char character) {
+			return false;
+		}
+
+		@Override
+		public boolean keyDown(int keycode) {
+			if (keycode == Constants.GAME_PAUSE) {
+				setPaused(!isPaused());
+				return true;
+			} else {
+				return false;
+			}
+		}
+	};
 
 	@Override
 	public void create() {
@@ -75,6 +123,14 @@ public class TaleOfPecora extends ApplicationAdapter {
 		// Set Libgdx log level to DEBUG
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
 		Gdx.app.log(TAG, "Running on: " + Gdx.app.getType());
+		System.out.println("=== DEBUG USER SYSTEM ===");
+		System.out.println("System-Enviroment listing:");
+		for(String key: System.getenv().keySet())
+		{
+			System.out.println(key + " ::: " + System.getenv(key));
+		}
+		System.out.println("=== DEBUG USER SYSTEM END ===");
+
 		Gdx.app.addLifecycleListener(new LifecycleListener() {
 
 			@Override
@@ -92,55 +148,7 @@ public class TaleOfPecora extends ApplicationAdapter {
 				instance.dispose();
 			}
 		});
-		Gdx.input.setInputProcessor(new InputProcessor() {
-
-			@Override
-			public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-				return false;
-			}
-
-			@Override
-			public boolean touchDragged(int screenX, int screenY, int pointer) {
-				return false;
-			}
-
-			@Override
-			public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-				return false;
-			}
-
-			@Override
-			public boolean scrolled(int amount) {
-				return false;
-			}
-
-			@Override
-			public boolean mouseMoved(int screenX, int screenY) {
-				return false;
-			}
-
-			@Override
-			public boolean keyUp(int keycode) {
-				return false;
-			}
-
-			@Override
-			public boolean keyTyped(char character) {
-				character = Character.toLowerCase(character);
-				switch (character) {
-				case 'p':
-					setPaused(!isPaused());
-					return true;
-				default:
-					return false;
-				}
-			}
-
-			@Override
-			public boolean keyDown(int keycode) {
-				return false;
-			}
-		});
+		Gdx.input.setInputProcessor(mainInputProcessor);
 		showMainMenu();
 		/*
 		 * // Load assets
@@ -174,7 +182,7 @@ public class TaleOfPecora extends ApplicationAdapter {
 	}
 
 	public void loadLevel() {
-		loadLevel(0); // TODO: This should load the newest level for the user (highest unlocked or lastPlayedLevel + 1)
+		loadLevel(1); // TODO: This should load the newest level for the user (highest unlocked or lastPlayedLevel + 1)
 		// sceneLoader.getBatch().setProjectionMatrix(camera.combined);
 		// sceneLoader.world.setGravity(new Vector2(0, -Constants.GRAVITY));
 	}
@@ -217,6 +225,7 @@ public class TaleOfPecora extends ApplicationAdapter {
 
 		player.firstFrame = true;
 		currentLevel = new Level(level, levels[level]);
+		Gdx.input.setInputProcessor(mainInputProcessor);
 
 		// Reset menus
 		if (mainMenu != null) {
@@ -361,7 +370,7 @@ public class TaleOfPecora extends ApplicationAdapter {
 
 	public float calculateZoom(int width, int height) {
 		float zoomWidth = Constants.BASE_WIDTH / (float) width;
-		float zoomHeight = Constants.BASE_HEIGHT/ (float) height;
+		float zoomHeight = Constants.BASE_HEIGHT / (float) height;
 		return zoomWidth > zoomHeight ? zoomWidth : zoomHeight;
 	}
 

@@ -62,9 +62,11 @@ public class Sheep extends com.germancoding.taleofpecora.entity.LivingEntity imp
 	public void act(float delta) {
 
 		// Step 0: Preperations
-		velocity.x = 0; // TODO: This is neccessary to stop movement, but also causes problems with objects where velocity is modified (like platforms)
+		if (!onMoveableObject) { // Workaround solution for the problem below
+			velocity.x = 0; // TODO: This is neccessary to stop movement, but also causes problems with objects where velocity is modified (like platforms)
+		}
 		// Still no good solution for this. Putting this behind step 3 or 4 only causes more problems with raycast or other entities.
-		
+
 		if (firstFrame) { // Delta time might be very high on first frame
 			firstFrame = false;
 			delta = 0.001f;
@@ -125,8 +127,6 @@ public class Sheep extends com.germancoding.taleofpecora.entity.LivingEntity imp
 		} else if (Gdx.input.isKeyPressed(Constants.CONTROLS_RIGHT)) {
 			velocity.x = Constants.PLAYER_SPEED;
 			turnRight();
-		} else {
-			velocity.x = 0;
 		}
 
 		if (Gdx.input.isKeyPressed(Constants.CONTROLS_DOWN)) {

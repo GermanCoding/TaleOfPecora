@@ -75,6 +75,19 @@ public class SettingsStage extends Stage {
 		Color color = menuActor.getColor();
 		menuActor.setColor(color.r, color.g, color.b, 0); // Stage is invisible first and will be faded in
 		addActor(menuActor);
+		this.addListener(new InputListener() {
+
+			@Override
+			public boolean keyDown(InputEvent event, int keycode) {
+				if(keycode == Constants.GAME_BACK) {
+					// TODO: Save settings
+					TaleOfPecora.instance.settings = null;
+					TaleOfPecora.instance.showMainMenu();
+					return true;
+				}
+				return false;
+			}
+		});
 	}
 
 	@Override

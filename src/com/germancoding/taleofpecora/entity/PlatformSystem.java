@@ -35,7 +35,7 @@ public class PlatformSystem extends IteratingSystem {
 		p.cTransform = ComponentRetriever.get(entity, CompositeTransformComponent.class);
 		p.setBaseLocation(new Vector2(p.transform.x, p.transform.y));
 		p.position = new Vector2(p.getBaseLocation());
-		p.velocity = new Vector2(0, Constants.PLATFORM_SPEED);
+		p.velocity = new Vector2(0, 0);
 		p.item = ComponentRetriever.get(entity, MainItemComponent.class);
 		p.entity = entity;
 		String[] vars = p.item.customVars.split(";");
@@ -47,6 +47,12 @@ public class PlatformSystem extends IteratingSystem {
 			} catch (IndexOutOfBoundsException e) {
 				; // Ignore
 			}
+		}
+
+		if (p.dataTable.containsKey("speed")) {
+			p.speed = p.dataTable.get("speed");
+		} else {
+			p.speed = Constants.PLATFORM_SPEED;
 		}
 	}
 
@@ -71,11 +77,17 @@ public class PlatformSystem extends IteratingSystem {
 			// System.out.println(base.y);
 			// System.out.println(current.y);
 			if (deltaY >= maxY) {
+				System.out.println("Up");
 				// Move up
-				platform.velocity.y = Constants.PLATFORM_SPEED;
+				platform.velocity.y = platform.speed;
 			} else if (deltaY <= -maxY) {
 				// Move down
-				platform.velocity.y = -Constants.PLATFORM_SPEED;
+				platform.velocity.y = -platform.speed;
+			} else {
+				if (platform.velocity.y == 0) {
+					// Default movement: Go up
+					platform.velocity.y = platform.speed;
+				}
 			}
 		}
 		if (maxX != 0) {
@@ -85,11 +97,16 @@ public class PlatformSystem extends IteratingSystem {
 			// System.out.println(base.y);
 			// System.out.println(current.y);
 			if (deltaX >= maxX) {
-				// Move up
-				platform.velocity.x = Constants.PLATFORM_SPEED;
+				// Move right
+				platform.velocity.x = platform.speed;
 			} else if (deltaX <= -maxX) {
-				// Move down
-				platform.velocity.x = -Constants.PLATFORM_SPEED;
+				// Move left
+				platform.velocity.x = -platform.speed;
+			} else {
+				if (platform.velocity.x == 0) {
+					// Default movement: Go right
+					platform.velocity.x = platform.speed;
+				}
 			}
 		}
 

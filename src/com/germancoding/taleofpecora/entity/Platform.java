@@ -22,6 +22,7 @@ public class Platform implements Component{
 	protected CompositeTransformComponent cTransform;
 	protected MainItemComponent item;
 	protected Vector2 velocity;
+	protected float speed;
 	
 	public Vector2 getBaseLocation() {
 		return baseLocation;
