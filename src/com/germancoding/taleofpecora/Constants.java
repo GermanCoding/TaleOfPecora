@@ -48,7 +48,7 @@ public class Constants {
 	public static float GRAVITY = 9.81f; // "Real life" value, altough I don't think our gravity simulation is realistic. But it's a nice value.
 	public static long INWATER_FLAG = 100l; // Time in milliseconds after we will remove the in-water flag.
 	public static float KNIGHT_SPEED = PLAYER_SPEED / 3;
-	public static float PLATFORM_SPEED = 0.1f;
+	public static float PLATFORM_SPEED = 1f;
 	public static long DEATH_TIME = 2000; // Time in milliseconds to continue playing after the player died (death animation) - does not apply if player is out of the world
 
 	// Points

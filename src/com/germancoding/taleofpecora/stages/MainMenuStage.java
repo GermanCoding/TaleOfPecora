@@ -52,8 +52,13 @@ public class MainMenuStage extends Stage {
 					@Override
 					public void clicked(InputEvent event, float x, float y) {
 						// TODO: Dispose menu to save memory, but: This could cause exceptions if no waiting algorithm is present because we have to wait for the dispose to finish
-						TaleOfPecora.instance.loadLevel();
-						TaleOfPecora.instance.renderMenu = false;
+						if (TaleOfPecora.instance.config.getLastSuccessfullLevel() >= 0) {
+							TaleOfPecora.instance.mainMenu = null;
+							TaleOfPecora.instance.showLevelSelect();
+						} else {
+							TaleOfPecora.instance.loadLevel();
+							TaleOfPecora.instance.renderMenu = false;
+						}
 					}
 				});
 			} else if (button.getName().equalsIgnoreCase("twitterButton")) {

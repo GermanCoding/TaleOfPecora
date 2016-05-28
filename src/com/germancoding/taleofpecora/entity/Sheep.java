@@ -60,11 +60,11 @@ public class Sheep extends com.germancoding.taleofpecora.entity.LivingEntity imp
 
 	@Override
 	public void act(float delta) {
-
 		// Step 0: Preperations
 		if (!onMoveableObject) { // Workaround solution for the problem below
 			velocity.x = 0; // TODO: This is neccessary to stop movement, but also causes problems with objects where velocity is modified (like platforms)
 		}
+
 		// Still no good solution for this. Putting this behind step 3 or 4 only causes more problems with raycast or other entities.
 
 		if (firstFrame) { // Delta time might be very high on first frame

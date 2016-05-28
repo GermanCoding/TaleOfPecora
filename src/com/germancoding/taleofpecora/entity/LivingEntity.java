@@ -107,7 +107,6 @@ public abstract class LivingEntity {
 		}
 
 		if (velocity.y < -9.81f) {
-			System.out.println("platform reset due to high velocity");
 			onMoveableObject = false;
 		}
 
@@ -366,10 +365,8 @@ public abstract class LivingEntity {
 						Entity e = (Entity) fixture.getBody().getUserData();
 						Platform platform = mapper.get(e);
 						if (platform != null) {
-							System.out.println("Platform detect");
-							velocity.y = platform.velocity.y * 15f;
-							velocity.x = platform.velocity.x * 15f;
-							move(delta);
+							velocity.y = platform.velocity.y;
+							velocity.x = platform.velocity.x;
 							onMoveableObject = true;
 						} else {
 							velocity.y = 0;

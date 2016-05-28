@@ -21,6 +21,7 @@ import com.germancoding.taleofpecora.entity.PlatformSystem;
 import com.germancoding.taleofpecora.entity.Sheep;
 import com.germancoding.taleofpecora.stages.BackgroundStage;
 import com.germancoding.taleofpecora.stages.LevelFinishedStage;
+import com.germancoding.taleofpecora.stages.LevelSelectStage;
 import com.germancoding.taleofpecora.stages.MainMenuStage;
 import com.germancoding.taleofpecora.stages.UIStage;
 import com.uwsoft.editor.renderer.SceneLoader;
@@ -52,6 +53,7 @@ public class TaleOfPecora extends ApplicationAdapter {
 	public MainMenuStage mainMenu;
 	public SettingsStage settings;
 	public LevelFinishedStage levelComplete;
+	public LevelSelectStage levelSelect;
 	public World world;
 	public Scheduler scheduler;
 	private boolean doReset;
@@ -60,6 +62,7 @@ public class TaleOfPecora extends ApplicationAdapter {
 	public Level currentLevel;
 	public long startTime;
 	public BackgroundStage backgroundStage;
+	public ConfigStorage config;
 
 	public TaleOfPecora() {
 		if (instance != null)
@@ -123,13 +126,15 @@ public class TaleOfPecora extends ApplicationAdapter {
 		// Set Libgdx log level to DEBUG
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
 		Gdx.app.log(TAG, "Running on: " + Gdx.app.getType());
-		System.out.println("=== DEBUG USER SYSTEM ===");
-		System.out.println("System-Enviroment listing:");
-		for(String key: System.getenv().keySet())
-		{
-			System.out.println(key + " ::: " + System.getenv(key));
-		}
-		System.out.println("=== DEBUG USER SYSTEM END ===");
+		/*
+		 * System.out.println("=== DEBUG USER SYSTEM ===");
+		 * System.out.println("System-Enviroment listing:");
+		 * for(String key: System.getenv().keySet())
+		 * {
+		 * System.out.println(key + " ::: " + System.getenv(key));
+		 * }
+		 * System.out.println("=== DEBUG USER SYSTEM END ===");
+		 */
 
 		Gdx.app.addLifecycleListener(new LifecycleListener() {
 
@@ -149,6 +154,8 @@ public class TaleOfPecora extends ApplicationAdapter {
 			}
 		});
 		Gdx.input.setInputProcessor(mainInputProcessor);
+		config = new ConfigStorage();
+		config.load();
 		showMainMenu();
 		/*
 		 * // Load assets
@@ -181,10 +188,29 @@ public class TaleOfPecora extends ApplicationAdapter {
 		renderMenu = true;
 	}
 
+	public void showLevelSelect() {
+		Viewport viewport = new FitViewport(Gdx.app.getGraphics().getWidth() / 80f, Gdx.app.getGraphics().getHeight() / 80f);
+		sceneLoader = new SceneLoader();
+		setCurrentScene(sceneLoader.loadScene("emptyScene", viewport));
+		camera = (OrthographicCamera) viewport.getCamera();
+		camera.zoom = calculateZoom(viewport.getScreenWidth(), viewport.getScreenHeight());
+		levelSelect = new LevelSelectStage(sceneLoader.getRm());
+		backgroundStage = new BackgroundStage(sceneLoader.getRm());
+		renderMenu = true;
+	}
+
 	public void loadLevel() {
-		loadLevel(1); // TODO: This should load the newest level for the user (highest unlocked or lastPlayedLevel + 1)
+		int level = config.getLastSuccessfullLevel() + 1;
+		if (!isValidLevel(level)) {
+			level--;
+		}
+		loadLevel(level); // TODO: This should load the newest level for the user (highest unlocked or lastPlayedLevel + 1)
 		// sceneLoader.getBatch().setProjectionMatrix(camera.combined);
 		// sceneLoader.world.setGravity(new Vector2(0, -Constants.GRAVITY));
+	}
+
+	public boolean isValidLevel(int level) {
+		return level < levels.length; // TODO: Check if unlocked?
 	}
 
 	public void loadLevel(int level) {
@@ -195,7 +221,7 @@ public class TaleOfPecora extends ApplicationAdapter {
 		} else if (level < 10) {
 			levelname = "level0" + level;
 		}
-		if (level >= levels.length) {
+		if (!isValidLevel(level)) {
 			setPaused(false);
 			Gdx.app.log(TAG, levelname + " does not exist, ignoring load command.");
 			return;
@@ -239,6 +265,10 @@ public class TaleOfPecora extends ApplicationAdapter {
 		if (settings != null) {
 			settings.dispose();
 		}
+		if (levelSelect != null) {
+			levelSelect.dispose();
+		}
+		levelSelect = null;
 		settings = null;
 		renderMenu = false;
 
@@ -306,6 +336,10 @@ public class TaleOfPecora extends ApplicationAdapter {
 			if (settings != null) {
 				settings.act();
 				settings.draw();
+			}
+			if (levelSelect != null) {
+				levelSelect.act();
+				levelSelect.draw();
 			}
 		} else {
 			// Render game world to screen
@@ -407,6 +441,10 @@ public class TaleOfPecora extends ApplicationAdapter {
 		if (mainMenu != null) {
 			mainMenu.dispose();
 		}
+		if (levelSelect != null) {
+			levelSelect.dispose();
+		}
+		levelSelect = null;
 		mainMenu = null;
 		levelComplete = null;
 		settings = null;

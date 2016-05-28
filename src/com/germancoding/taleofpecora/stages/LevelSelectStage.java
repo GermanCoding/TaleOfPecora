@@ -45,11 +45,17 @@ public class LevelSelectStage extends Stage {
 				continue; // Ignore buttons that aren't composite items. Should not happen unless we have errors somewhere.
 
 			if (Utils.isInteger(button.getName())) {
-				int level = Integer.parseInt(button.getName());
+				final int level = Integer.parseInt(button.getName());
 				final int layerIndex = button.getLayerIndex("locked");
 				if (!button.getVo().composite.layers.get(layerIndex).isVisible) {
-					TaleOfPecora.instance.loadLevel(level - 1);
-					TaleOfPecora.instance.renderMenu = false;
+					button.addListener(new ClickListener() {
+						@Override
+						public void clicked(InputEvent event, float x, float y) {
+							System.out.println("Level load: " + level);
+							TaleOfPecora.instance.loadLevel(level - 1);
+							TaleOfPecora.instance.renderMenu = false;
+						}
+					});
 				}
 			} else if (button.getName().equalsIgnoreCase("playButton")) {
 				button.addListener(new ClickListener() {
@@ -64,6 +70,7 @@ public class LevelSelectStage extends Stage {
 				button.addListener(new ClickListener() {
 					@Override
 					public void clicked(InputEvent event, float x, float y) {
+						TaleOfPecora.instance.levelSelect = null;
 						TaleOfPecora.instance.showMainMenu();
 					}
 				});
@@ -76,9 +83,11 @@ public class LevelSelectStage extends Stage {
 					super.enter(event, x, y, pointer, fromActor);
 					final int layerIndex = button.getLayerIndex("pressed");
 					final int layerIndex2 = button.getLayerIndex("locked");
-					if (!button.getVo().composite.layers.get(layerIndex).isVisible && !button.getVo().composite.layers.get(layerIndex2).isVisible) {
-						button.setLayerVisibility("hover", true);
-						button.setLayerVisibility("normal", false);
+					if (!button.getVo().composite.layers.get(layerIndex).isVisible) {
+						if (layerIndex2 <= -1 || !button.getVo().composite.layers.get(layerIndex2).isVisible) {
+							button.setLayerVisibility("hover", true);
+							button.setLayerVisibility("normal", false);
+						}
 					}
 				}
 
@@ -87,9 +96,11 @@ public class LevelSelectStage extends Stage {
 					super.exit(event, x, y, pointer, toActor);
 					final int layerIndex = button.getLayerIndex("pressed");
 					final int layerIndex2 = button.getLayerIndex("locked");
-					if (!button.getVo().composite.layers.get(layerIndex).isVisible && !button.getVo().composite.layers.get(layerIndex2).isVisible) {
-						button.setLayerVisibility("hover", false);
-						button.setLayerVisibility("normal", true);
+					if (!button.getVo().composite.layers.get(layerIndex).isVisible) {
+						if (layerIndex2 <= -1 || !button.getVo().composite.layers.get(layerIndex2).isVisible) {
+							button.setLayerVisibility("hover", false);
+							button.setLayerVisibility("normal", true);
+						}
 					}
 				}
 			});

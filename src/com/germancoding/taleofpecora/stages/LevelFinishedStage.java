@@ -77,6 +77,9 @@ public class LevelFinishedStage extends Stage {
 		totalScoreLabel.setText(score + "");
 
 		// TODO: Save stats (async?)
+		TaleOfPecora.instance.config.setLastSuccessfullLevel(TaleOfPecora.instance.currentLevel.getId());
+		TaleOfPecora.instance.config.update();
+		TaleOfPecora.instance.config.saveAsync();
 
 		// Click actions
 		for (Actor cButton : menuActor.getItemsByTag("button")) {

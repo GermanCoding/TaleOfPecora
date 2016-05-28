@@ -14,6 +14,7 @@ import com.uwsoft.editor.renderer.components.DimensionsComponent;
 import com.uwsoft.editor.renderer.components.MainItemComponent;
 import com.uwsoft.editor.renderer.components.TransformComponent;
 import com.uwsoft.editor.renderer.components.physics.PhysicsBodyComponent;
+import com.uwsoft.editor.renderer.physics.PhysicsBodyLoader;
 import com.uwsoft.editor.renderer.utils.ComponentRetriever;
 
 public class PlatformSystem extends IteratingSystem {
@@ -77,7 +78,6 @@ public class PlatformSystem extends IteratingSystem {
 			// System.out.println(base.y);
 			// System.out.println(current.y);
 			if (deltaY >= maxY) {
-				System.out.println("Up");
 				// Move up
 				platform.velocity.y = platform.speed;
 			} else if (deltaY <= -maxY) {
@@ -110,7 +110,13 @@ public class PlatformSystem extends IteratingSystem {
 			}
 		}
 
-		platform.physics.body.setTransform((platform.physics.body.getPosition().x + (platform.velocity.x * delta)), (platform.physics.body.getPosition().y + (platform.velocity.y * delta)), platform.physics.body.getAngle());
+		float newX = (platform.physics.body.getPosition().x) + (platform.velocity.x * delta * PhysicsBodyLoader.getScale());
+		float newY = (platform.physics.body.getPosition().y) + (platform.velocity.y * delta * PhysicsBodyLoader.getScale());
+
+		// System.out.println(platform.velocity.x * delta);
+		// System.out.println(platform.transform.x);
+
+		platform.physics.body.setTransform(newX, newY, platform.physics.body.getAngle());
 	}
 
 }
