@@ -10,6 +10,7 @@ import org.imgscalr.Scalr;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+import com.germancoding.taleofpecora.ConfigStorage;
 import com.germancoding.taleofpecora.Constants;
 import com.germancoding.taleofpecora.TaleOfPecora;
 
@@ -17,7 +18,7 @@ public class DesktopLauncher {
 
 	private static boolean rebuildAtlas = false;
 	private static boolean drawDebugOutline = false;
-	
+
 	static int IMG_WIDTH = 148;
 	static int IMG_HEIGHT = 178;
 
@@ -69,6 +70,16 @@ public class DesktopLauncher {
 		// resolution displays
 
 		// TODO: Load preferences if present
+		ConfigStorage graphicConfig = new ConfigStorage();
+		graphicConfig.loadGraphicSettings();
+		graphicConfig.updateGraphicSettings();
+		try {
+			graphicConfig.save();
+		} catch (IOException e) {
+			System.err.println("Failed to save graphic preferences in main() - " + e);
+			e.printStackTrace();
+			// This is a bad error (filesystem unavailable, disk full?) but we will continue anyway.
+		}
 
 		// TODO: Write default preferences if not present
 
