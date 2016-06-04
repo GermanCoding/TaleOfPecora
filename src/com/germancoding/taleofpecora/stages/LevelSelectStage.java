@@ -51,7 +51,6 @@ public class LevelSelectStage extends Stage {
 					button.addListener(new ClickListener() {
 						@Override
 						public void clicked(InputEvent event, float x, float y) {
-							System.out.println("Level load: " + level);
 							TaleOfPecora.instance.loadLevel(level - 1);
 							TaleOfPecora.instance.renderMenu = false;
 						}

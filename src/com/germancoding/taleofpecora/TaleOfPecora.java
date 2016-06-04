@@ -4,12 +4,20 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.LifecycleListener;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Animation.PlayMode;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.germancoding.taleofpecora.entity.Carrot;
@@ -23,6 +31,7 @@ import com.germancoding.taleofpecora.stages.BackgroundStage;
 import com.germancoding.taleofpecora.stages.LevelFinishedStage;
 import com.germancoding.taleofpecora.stages.LevelSelectStage;
 import com.germancoding.taleofpecora.stages.MainMenuStage;
+import com.germancoding.taleofpecora.stages.SettingsStage;
 import com.germancoding.taleofpecora.stages.UIStage;
 import com.uwsoft.editor.renderer.SceneLoader;
 import com.uwsoft.editor.renderer.components.additional.ButtonComponent;
@@ -63,6 +72,9 @@ public class TaleOfPecora extends ApplicationAdapter {
 	public long startTime;
 	public BackgroundStage backgroundStage;
 	public ConfigStorage config;
+	public UIHelper helper;
+	public Object mainThreadLock = new Object();
+	public Runnable restartRun;
 
 	public TaleOfPecora() {
 		if (instance != null)
@@ -174,6 +186,7 @@ public class TaleOfPecora extends ApplicationAdapter {
 		camera.zoom = calculateZoom(viewport.getScreenWidth(), viewport.getScreenHeight());
 		mainMenu = new MainMenuStage(sceneLoader.getRm());
 		backgroundStage = new BackgroundStage(sceneLoader.getRm());
+		helper = new UIHelper();
 		renderMenu = true;
 	}
 
@@ -185,6 +198,7 @@ public class TaleOfPecora extends ApplicationAdapter {
 		camera.zoom = calculateZoom(viewport.getScreenWidth(), viewport.getScreenHeight());
 		settings = new SettingsStage(sceneLoader.getRm());
 		backgroundStage = new BackgroundStage(sceneLoader.getRm());
+		helper = new UIHelper();
 		renderMenu = true;
 	}
 
@@ -196,6 +210,7 @@ public class TaleOfPecora extends ApplicationAdapter {
 		camera.zoom = calculateZoom(viewport.getScreenWidth(), viewport.getScreenHeight());
 		levelSelect = new LevelSelectStage(sceneLoader.getRm());
 		backgroundStage = new BackgroundStage(sceneLoader.getRm());
+		helper = new UIHelper();
 		renderMenu = true;
 	}
 
@@ -248,6 +263,7 @@ public class TaleOfPecora extends ApplicationAdapter {
 		scheduler = new Scheduler();
 		sound = new SoundController();
 		backgroundStage = new BackgroundStage(sceneLoader.getRm());
+		helper = new UIHelper();
 
 		player.firstFrame = true;
 		currentLevel = new Level(level, levels[level]);
@@ -386,6 +402,84 @@ public class TaleOfPecora extends ApplicationAdapter {
 		}
 	}
 
+	public void showYesNoDialog(String title, String text, final DialogCallback callback, Stage stage) {
+		float scale = 1f / TaleOfPecora.instance.camera.zoom;
+		Skin skin = helper.makeSkin((int) (60 * scale), Color.BLACK, Color.DARK_GRAY);
+		Label label = new Label(text, skin);
+		label.setWrap(true);
+		label.setFontScale(.8f);
+		label.setAlignment(Align.center);
+
+		Dialog dialog = new Dialog("", skin, "dialog") {
+			protected void result(Object object) {
+				callback.setResult(object);
+				callback.run();
+			}
+		};
+
+		dialog.padTop(50).padBottom(50);
+		dialog.getContentTable().add(label).width(Gdx.graphics.getWidth() / 2f).row();
+		dialog.getButtonTable().padTop(50);
+
+		TextButton dbutton = new TextButton("Yes", skin, "dialog");
+		dialog.button(dbutton, true);
+
+		dbutton = new TextButton("No", skin, "dialog");
+		dialog.button(dbutton, false);
+		dialog.key(Keys.ENTER, true).key(Keys.ESCAPE, false);
+		dialog.invalidateHierarchy();
+		dialog.invalidate();
+		dialog.layout();
+		dialog.show(stage);
+
+		/*
+		 * - old code - no wrap
+		 * new Dialog("", helper.makeSkin(30, Color.BLACK, Color.DARK_GRAY), "dialog") {
+		 * protected void result(Object object) {
+		 * callback.setResult(object);
+		 * callback.run();
+		 * }
+		 * }.text(text).button("Yes", true).button("No", false).key(Keys.ENTER, true).key(Keys.ESCAPE, false).show(stage);
+		 */
+	}
+
+	public void showConfirmDialog(String title, String text, final DialogCallback callback, Stage stage) {
+		float scale = 1f / TaleOfPecora.instance.camera.zoom;
+		Skin skin = helper.makeSkin((int) (60 * scale), Color.BLACK, Color.DARK_GRAY);
+		Label label = new Label(text, skin);
+		label.setWrap(true);
+		label.setFontScale(.8f);
+		label.setAlignment(Align.center);
+
+		Dialog dialog = new Dialog("", skin, "dialog") {
+			protected void result(Object object) {
+				callback.setResult(object);
+				callback.run();
+			}
+		};
+
+		dialog.padTop(50).padBottom(50);
+		dialog.getContentTable().add(label).width(Gdx.graphics.getWidth() / 2f).row();
+		dialog.getButtonTable().padTop(50);
+
+		TextButton dbutton = new TextButton("OK", skin, "dialog");
+		dialog.button(dbutton, true);
+		dialog.key(Keys.ENTER, true).key(Keys.ESCAPE, false);
+		dialog.invalidateHierarchy();
+		dialog.invalidate();
+		dialog.layout();
+		dialog.show(stage);
+		/*
+		 * - old code - no wrap
+		 * new Dialog("", helper.makeSkin(30, Color.BLACK, Color.DARK_GRAY), "dialog") {
+		 * protected void result(Object object) {
+		 * callback.setResult(object);
+		 * callback.run();
+		 * }
+		 * }.text(text).button("OK", true).key(Keys.ENTER, true).key(Keys.ESCAPE, false).show(stage);
+		 */
+	}
+
 	@Deprecated
 	public void renderBackground() {
 		sceneLoader.getBatch().begin();
@@ -444,6 +538,10 @@ public class TaleOfPecora extends ApplicationAdapter {
 		if (levelSelect != null) {
 			levelSelect.dispose();
 		}
+		if (helper != null) {
+			helper.dispose();
+		}
+		helper = null;
 		levelSelect = null;
 		mainMenu = null;
 		levelComplete = null;
@@ -528,6 +626,10 @@ public class TaleOfPecora extends ApplicationAdapter {
 			break;
 		}
 
+		return createEntity(vo);
+	}
+
+	public Entity createEntity(CompositeItemVO vo) {
 		Entity newEntity = TaleOfPecora.instance.getSceneLoader().getEntityFactory().createEntity(TaleOfPecora.instance.getSceneLoader().getRoot(), vo);
 		TaleOfPecora.instance.getSceneLoader().getEntityFactory().initAllChildren(TaleOfPecora.instance.getSceneLoader().getEngine(), newEntity, vo.composite);
 		return newEntity;
@@ -547,5 +649,9 @@ public class TaleOfPecora extends ApplicationAdapter {
 				doReset = true;
 			}
 		}).start();
+	}
+
+	public void doFullRestart() {
+		Gdx.app.postRunnable(restartRun);
 	}
 }

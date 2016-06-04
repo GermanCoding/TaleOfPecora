@@ -181,4 +181,20 @@ public class ConfigStorage {
 		this.lastSuccessfullLevel = lastSuccessfullLevel;
 	}
 
+	public File getStoragePath() {
+		return this.storagePath;
+	}
+
+	public void setStoragePath(File storagePath) {
+		this.storagePath = storagePath;
+	}
+
+	public File getUserStats() {
+		return this.userStats;
+	}
+
+	public void setUserStats(File userStats) {
+		this.userStats = userStats;
+	}
+
 }
