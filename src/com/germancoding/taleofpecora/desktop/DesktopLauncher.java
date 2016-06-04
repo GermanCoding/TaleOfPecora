@@ -3,11 +3,13 @@ package com.germancoding.taleofpecora.desktop;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 
 import javax.imageio.ImageIO;
 
 import org.imgscalr.Scalr;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.germancoding.taleofpecora.ConfigStorage;
@@ -69,7 +71,7 @@ public class DesktopLauncher {
 		Constants.MSAA = 0; // Can't see any difference when using MSAA, so default is off. It's up to the user to turn it on, maybe there is a visible difference on high-
 		// resolution displays
 
-		// TODO: Load preferences if present
+		// Load and write preferences
 		ConfigStorage graphicConfig = new ConfigStorage();
 		graphicConfig.loadGraphicSettings();
 		graphicConfig.updateGraphicSettings();
@@ -80,8 +82,6 @@ public class DesktopLauncher {
 			e.printStackTrace();
 			// This is a bad error (filesystem unavailable, disk full?) but we will continue anyway.
 		}
-
-		// TODO: Write default preferences if not present
 
 		// Configure LWJGL to use our preferences
 		config.useGL30 = Constants.GL3_0;
@@ -108,6 +108,9 @@ public class DesktopLauncher {
 				config.vSyncEnabled = false;
 				config.foregroundFPS = Integer.MAX_VALUE;
 			}
+			if (arg.equalsIgnoreCase("-Vsync")) {
+				config.vSyncEnabled = true;
+			}
 			if (arg.equalsIgnoreCase("-gl3")) {
 				config.useGL30 = true;
 			}
@@ -117,7 +120,33 @@ public class DesktopLauncher {
 		}
 
 		// Start
-		new LwjglApplication(new TaleOfPecora(), config).log("[DesktopLauncher]", "Application created");
+		LwjglApplication app = new LwjglApplication(new TaleOfPecora(), config);
+		TaleOfPecora.instance.restartRun = new Runnable() {
+
+			@Override
+			public void run() {
+				if (Gdx.app != null)
+					Gdx.app.exit();
+				restart();
+			}
+		};
+		app.log("[DesktopLauncher]", "Application created");
+	}
+
+	public static void restart() {
+		final StringBuilder cmd = new StringBuilder();
+		cmd.append(System.getProperty("java.home") + File.separator + "bin" + File.separator + "java ");
+		for (final String jvmArg : ManagementFactory.getRuntimeMXBean().getInputArguments()) {
+			cmd.append(jvmArg + " ");
+		}
+		cmd.append("-cp ").append(ManagementFactory.getRuntimeMXBean().getClassPath()).append(" ");
+		cmd.append(DesktopLauncher.class.getName()).append(" ");
+
+		try {
+			Runtime.getRuntime().exec(cmd.toString());
+		} catch (final IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static boolean isDrawDebugOutline() {
