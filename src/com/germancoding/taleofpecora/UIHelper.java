@@ -12,7 +12,9 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
+import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.CheckBox.CheckBoxStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -33,6 +35,8 @@ public class UIHelper {
 	Texture background;
 	Texture buttonUp;
 	Texture buttonDown;
+	Texture checkBoxOff;
+	Texture checkBoxOn;
 
 	public UIHelper() {
 		generator = new FreeTypeFontGenerator(Gdx.files.internal("freetypefonts/kirbyss.ttf"));
@@ -73,12 +77,25 @@ public class UIHelper {
 		BitmapFont font = makeFont(fontSize, color);
 		LabelStyle labelStyle = new LabelStyle(font, color);
 		TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle(new TextureRegionDrawable(new TextureRegion(buttonUp)), new TextureRegionDrawable(new TextureRegion(buttonDown)), null, font);
-		Window.WindowStyle windowStyle = new Window.WindowStyle(makeFont(fontSize, color), titleFontColor, null); //new TextureRegionDrawable(new TextureRegion(background)));
+		Window.WindowStyle windowStyle = new Window.WindowStyle(makeFont(fontSize, color), titleFontColor, new TextureRegionDrawable(new TextureRegion(background)));
 		skin.add("default", labelStyle);
 		skin.add("default", textButtonStyle);
 		skin.add("dialog", windowStyle);
 		skin.add("dialog", textButtonStyle);
 		return skin;
+	}
+
+	public CheckBox createCheckBox(String text, int fontSize, Color color) {
+		if (checkBoxOff == null) {
+			checkBoxOff = new Texture("external/slice109.png");
+		}
+		if (checkBoxOn == null) {
+			checkBoxOn = new Texture("external/slice108.png");
+		}
+		BitmapFont font = makeFont(fontSize, color);
+		CheckBoxStyle style = new CheckBoxStyle(new TextureRegionDrawable(new TextureRegion(checkBoxOff)), new TextureRegionDrawable(new TextureRegion(checkBoxOn)), font, color);
+		CheckBox box = new CheckBox(text, style);
+		return box;
 	}
 
 	public TextField createTextField(String text, int fontSize, Color color) {
@@ -109,5 +126,10 @@ public class UIHelper {
 		skin = null;
 		cursor = null;
 		selected = null;
+		background = null;
+		buttonUp = null;
+		buttonDown = null;
+		checkBoxOff = null;
+		checkBoxOn = null;
 	}
 }

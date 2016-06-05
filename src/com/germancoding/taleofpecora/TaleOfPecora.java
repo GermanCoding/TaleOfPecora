@@ -318,6 +318,7 @@ public class TaleOfPecora extends ApplicationAdapter {
 		if (paused) {
 			if (doReset) {
 				doReset = false;
+				int level = this.currentLevel.getId();
 				dispose();
 				synchronized (this) {
 					try {
@@ -326,7 +327,7 @@ public class TaleOfPecora extends ApplicationAdapter {
 						;
 					}
 				}
-				loadLevel();
+				loadLevel(level);
 				// renderBackground(); // Attempting to fix high delta time, apparently doesn't work
 				paused = false;
 				Gdx.app.debug(TAG, "Level reset done");
