@@ -170,9 +170,33 @@ public class TaleOfPecora extends ApplicationAdapter {
 				instance.dispose();
 			}
 		});
+		// Wait until we're fully ready to start (safer) but continue after 5 seconds if we don't get a notify()
+		synchronized (this) {
+			try {
+				long start = System.currentTimeMillis();
+				System.out.println("Wait start");
+				this.wait(5000);
+				System.out.println("Wait end - " + (System.currentTimeMillis() - start));
+			} catch (InterruptedException e) {
+				;
+			}
+		}
+
 		Gdx.input.setInputProcessor(mainInputProcessor);
-		config = new ConfigStorage();
+		if (config == null) { // Config should be already up if we had no failure
+			Gdx.app.debug(TAG, "Setting up own config because the implementation forgot us :(");
+			config = new ConfigStorage();
+		}
 		config.load();
+		/*
+		scheduler = new Scheduler();
+		System.out.println(Gdx.app.getGraphics().getWidth());
+		Constants.GAME_HEIGHT = Gdx.app.getGraphics().getWidth();
+		Constants.GAME_WIDTH = Gdx.app.getGraphics().getHeight();
+		Constants.FULLSCREEN = Gdx.app.getGraphics().isFullscreen();
+		config.updateGraphicSettings();
+		config.saveAsync();
+		*/
 		showMainMenu();
 		/*
 		 * // Load assets
@@ -184,6 +208,7 @@ public class TaleOfPecora extends ApplicationAdapter {
 	}
 
 	public void showMainMenu() {
+		setPaused(true);
 		Viewport viewport = new FitViewport(Gdx.app.getGraphics().getWidth() / 80f, Gdx.app.getGraphics().getHeight() / 80f);
 		sceneLoader = new SceneLoader();
 		setCurrentScene(sceneLoader.loadScene("emptyScene", viewport));
@@ -193,9 +218,11 @@ public class TaleOfPecora extends ApplicationAdapter {
 		backgroundStage = new BackgroundStage(sceneLoader.getRm());
 		helper = new UIHelper();
 		renderMenu = true;
+		setPaused(false);
 	}
 
 	public void showSettings() {
+		setPaused(true);
 		Viewport viewport = new FitViewport(Gdx.app.getGraphics().getWidth() / 80f, Gdx.app.getGraphics().getHeight() / 80f);
 		sceneLoader = new SceneLoader();
 		setCurrentScene(sceneLoader.loadScene("emptyScene", viewport));
@@ -205,9 +232,11 @@ public class TaleOfPecora extends ApplicationAdapter {
 		backgroundStage = new BackgroundStage(sceneLoader.getRm());
 		helper = new UIHelper();
 		renderMenu = true;
+		setPaused(false);
 	}
 
 	public void showLevelSelect() {
+		setPaused(true);
 		Viewport viewport = new FitViewport(Gdx.app.getGraphics().getWidth() / 80f, Gdx.app.getGraphics().getHeight() / 80f);
 		sceneLoader = new SceneLoader();
 		setCurrentScene(sceneLoader.loadScene("emptyScene", viewport));
@@ -217,6 +246,7 @@ public class TaleOfPecora extends ApplicationAdapter {
 		backgroundStage = new BackgroundStage(sceneLoader.getRm());
 		helper = new UIHelper();
 		renderMenu = true;
+		setPaused(false);
 	}
 
 	public void loadLevel() {

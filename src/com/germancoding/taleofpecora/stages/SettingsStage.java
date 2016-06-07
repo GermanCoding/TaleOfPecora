@@ -8,6 +8,7 @@ package com.germancoding.taleofpecora.stages;
 import java.io.IOException;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Graphics.DisplayMode;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -24,6 +25,7 @@ import com.germancoding.taleofpecora.Constants;
 import com.germancoding.taleofpecora.DialogCallback;
 import com.germancoding.taleofpecora.TaleOfPecora;
 import com.germancoding.taleofpecora.UIHelper;
+import com.germancoding.taleofpecora.Utils;
 import com.uwsoft.editor.renderer.data.CompositeItemVO;
 import com.uwsoft.editor.renderer.data.ProjectInfoVO;
 import com.uwsoft.editor.renderer.resources.IResourceRetriever;
@@ -39,12 +41,14 @@ public class SettingsStage extends Stage {
 	final TextField heightField;
 	final CheckBox openglField;
 	final TextField fpsField;
+	final CheckBox fullField;
 
 	private boolean requireRestart;
 	private int newWidth;
 	private int newHeight;
 	private boolean useOpenGL3;
 	private int newFPS;
+	private boolean fullscreen;
 
 	public SettingsStage(IResourceRetriever ir) {
 		final SettingsStage stage = this;
@@ -67,6 +71,7 @@ public class SettingsStage extends Stage {
 		newHeight = Constants.GAME_HEIGHT;
 		useOpenGL3 = Constants.GL3_0;
 		newFPS = Constants.TARGET_FPS;
+		fullscreen = Constants.FULLSCREEN;
 
 		// === Width TextField ===
 		Actor widthActor = menuActor.getItem("width");
@@ -172,7 +177,7 @@ public class SettingsStage extends Stage {
 			}
 		});
 
-		// === FPS Checkbox ===
+		// === FPS TextField ===
 		Actor fpsActor = menuActor.getItem("fps");
 		fpsField = helper.createTextField("" + newFPS, (int) (25 * scale), Color.BLACK); // new TextField("TEST", new TextField.TextFieldStyle());
 		// fpsField.setDebug(true);
@@ -227,6 +232,32 @@ public class SettingsStage extends Stage {
 					return true;
 				}
 				return false;
+			}
+		});
+
+		// === Fullscreen CheckBox ===
+		Actor fullActor = menuActor.getItem("fullscreen");
+		fullField = helper.createCheckBox("", (int) (25 * scale), Color.BLACK);
+		// fullField.setDebug(true);
+		fullField.setChecked(fullscreen);
+		fullField.setSize(fullActor.getWidth() * scale * fullActor.getScaleX(), fullActor.getHeight() * scale * fullActor.getScaleY());
+		fullField.setX(menuActor.getX() + fullActor.getX() * scale);
+		fullField.setY(menuActor.getY() + fullActor.getY() * scale);
+		fullField.addListener(new ChangeListener() {
+
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				if (fullField.isChecked()) {
+					if (Gdx.graphics.supportsDisplayModeChange()) {
+						java.awt.DisplayMode mode = getBestFullscreenMode();
+						Gdx.graphics.setDisplayMode(mode.getWidth(), mode.getHeight(), true);
+					}
+				} else {
+					if (Gdx.graphics.supportsDisplayModeChange()) {
+						Gdx.graphics.setDisplayMode(newWidth, newHeight, false);
+					}
+				}
+				fullscreen = fullField.isChecked();
 			}
 		});
 
@@ -286,6 +317,7 @@ public class SettingsStage extends Stage {
 		addActor(menuActor);
 		addActor(heightField);
 		addActor(textField);
+		addActor(fullField);
 		addActor(openglField);
 		addActor(fpsField);
 
@@ -304,11 +336,53 @@ public class SettingsStage extends Stage {
 		});
 	}
 
+	public java.awt.DisplayMode getBestFullscreenMode() {
+		// DisplayMode mode = Gdx.graphics.getDesktopDisplayMode();
+		int height, width;
+		/*
+		 * if (mode != null) {
+		 * height = mode.height;
+		 * width = mode.width;
+		 * } else {
+		 */
+		height = newHeight;
+		width = newWidth;
+		// }
+
+		int closestHeight = 0, closestWidth = 0;
+
+		for (DisplayMode suppported : Gdx.graphics.getDisplayModes()) {
+			if (height == suppported.height && width == suppported.width) {
+				// System.out.println("Perfect match found: height = " + height + ", width = " + width);
+				closestHeight = height;
+				closestWidth = width;
+				break;
+			} else {
+				if (closestHeight == 0 || closestWidth == 0) {
+					closestHeight = suppported.height;
+					closestWidth = suppported.width;
+				} else if (Utils.bestMatch(suppported.height, height, closestHeight, height) || Utils.bestMatch(suppported.width, width, closestWidth, width)) {
+					// TODO: This algorithm is not perfect
+					// If this is true than this display mode is the best we found (yet).
+					closestHeight = suppported.height;
+					closestWidth = suppported.width;
+				}
+			}
+		}
+
+		if (closestHeight == 0 || closestWidth == 0) {
+			return null;
+		}
+		System.out.println("Using this display mode: height = " + closestHeight + ", width = " + closestWidth);
+		return new java.awt.DisplayMode(closestWidth, closestHeight, 0, 0); // Only a dummy object, ignore refresh & bit values
+	}
+
 	public void reparseSettingsIgnoreWrong() {
 		newWidth = parseIntNoError(textField.getText(), newWidth);
 		newHeight = parseIntNoError(heightField.getText(), newHeight);
 		useOpenGL3 = openglField.isChecked();
 		newFPS = parseIntNoError(fpsField.getText(), newFPS);
+		fullscreen = fullField.isChecked();
 	}
 
 	public void applySettings() {
@@ -327,6 +401,23 @@ public class SettingsStage extends Stage {
 		if (Constants.TARGET_FPS != newFPS) {
 			requireRestart = true;
 			Constants.TARGET_FPS = newFPS;
+		}
+		if (Constants.FULLSCREEN != fullscreen) {
+			if (fullField.isChecked()) {
+				if (Gdx.graphics.supportsDisplayModeChange()) {
+					java.awt.DisplayMode mode = getBestFullscreenMode();
+					Gdx.graphics.setDisplayMode(mode.getWidth(), mode.getHeight(), true);
+				} else {
+					requireRestart = true;
+				}
+			} else {
+				if (Gdx.graphics.supportsDisplayModeChange()) {
+					Gdx.graphics.setDisplayMode(newWidth, newHeight, false);
+				} else {
+					requireRestart = true;
+				}
+			}
+			Constants.FULLSCREEN = fullscreen;
 		}
 
 		TaleOfPecora.instance.config.updateGraphicSettings(); // We could make this async but this seems better to me
