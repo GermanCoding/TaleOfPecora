@@ -15,6 +15,21 @@ public class Utils {
 		}
 	}
 
+	/**
+	 * Returns true if a and b are closer to each other than c and d
+	 * 
+	 * @param a
+	 * @param b
+	 * @param c
+	 * @param d
+	 * @return
+	 */
+	public static boolean bestMatch(int a, int b, int c, int d) {
+		int delta1 = Math.max(a, b) - Math.min(a, b);
+		int delta2 = Math.max(c, d) - Math.min(c, d);
+		return delta1 < delta2;
+	}
+
 	public static boolean isInteger(String s) {
 		try {
 			Integer.valueOf(s);

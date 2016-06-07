@@ -93,6 +93,13 @@ public class MainMenuStage extends Stage {
 						TaleOfPecora.instance.showSettings();
 					}
 				});
+			} else if (button.getName().equalsIgnoreCase("exitButton")) {
+				button.addListener(new ClickListener() {
+					@Override
+					public void clicked(InputEvent event, float x, float y) {
+						Gdx.app.exit();
+					}
+				});
 			}
 
 			// Hover effects

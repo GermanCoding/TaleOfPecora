@@ -30,33 +30,32 @@ public class ConfigStorage {
 	private int lastSuccessfullLevel = -1;
 
 	public ConfigStorage() {
-		logger = new Logger(TAG);
+		logger = new Logger(TAG) { // Setup custom logger because LibGDX logging system might not be available yet
+			@Override
+			public void info(String message) {
+				System.out.println(message);
+			}
 
-		if (Gdx.app == null) { // Application not initialized yet
-			logger = new Logger(TAG) { // Setup custom logger because LibGDX logging system is not available yet
-				@Override
-				public void info(String message) {
-					System.out.println(message);
-				}
+			@Override
+			public void error(String message) {
+				System.out.println(message);
+			}
 
-				@Override
-				public void error(String message) {
-					System.out.println(message);
-				}
+			@Override
+			public void error(String message, Throwable exception) {
+				System.out.println(message + " - " + exception);
+			}
 
-				@Override
-				public void error(String message, Throwable exception) {
-					System.out.println(message + " - " + exception);
-				}
-
-				@Override
-				public void debug(String message) {
-					System.out.println(message);
-				}
-			};
-		}
+			@Override
+			public void debug(String message) {
+				System.out.println(message);
+			}
+		};
 		try {
-			String appdata = System.getenv("APPDATA");
+			String appdata = System.getenv("APPDATA"); // TODO: Only present on Windows
+			if (appdata == null) {
+				appdata = "";
+			}
 			File folder = new File(appdata);
 
 			if (!folder.isDirectory()) {
@@ -113,7 +112,7 @@ public class ConfigStorage {
 	public void loadProgressSettings() {
 		lastSuccessfullLevel = userStatsObject.optInt(PROFILE_NAME + ".progress.level", -1);
 	}
-	
+
 	public void load() {
 		loadGraphicSettings();
 		loadProgressSettings();
