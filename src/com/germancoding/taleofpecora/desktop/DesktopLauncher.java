@@ -15,11 +15,14 @@ import javax.imageio.ImageIO;
 import org.imgscalr.Scalr;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Graphics.DisplayMode;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+import com.badlogic.gdx.backends.lwjgl.LwjglGraphics.SetDisplayModeCallback;
 import com.germancoding.taleofpecora.ConfigStorage;
 import com.germancoding.taleofpecora.Constants;
 import com.germancoding.taleofpecora.TaleOfPecora;
+import com.germancoding.taleofpecora.Utils;
 
 public class DesktopLauncher {
 
@@ -124,6 +127,21 @@ public class DesktopLauncher {
 			}
 		}
 
+		// If the preferred config is unsupported by LWJGL, we will try to fix it here (Currently only wrong width * height combinations)
+		config.setDisplayModeCallback = new SetDisplayModeCallback() {
+
+			@Override
+			public LwjglApplicationConfiguration onFailure(LwjglApplicationConfiguration initialConfig) {
+				java.awt.DisplayMode mode = getBestFullscreenMode(initialConfig.getDisplayModes(), initialConfig.height, initialConfig.width);
+				if (mode == null) {
+					throw new RuntimeException("Unable to find a display mode!");
+				}
+				initialConfig.height = mode.getHeight();
+				initialConfig.width = mode.getWidth();
+				return initialConfig;
+			}
+		};
+
 		// Start
 		LwjglApplication app = new LwjglApplication(new TaleOfPecora(), config);
 		TaleOfPecora.instance.restartRun = new Runnable() {
@@ -135,7 +153,41 @@ public class DesktopLauncher {
 				restart();
 			}
 		};
+		TaleOfPecora.instance.config = graphicConfig;
+		synchronized (TaleOfPecora.instance) {
+			TaleOfPecora.instance.notifyAll();
+		}
 		app.log("[DesktopLauncher]", "Application created");
+	}
+
+	public static java.awt.DisplayMode getBestFullscreenMode(DisplayMode[] modes, int height, int width) {
+		// (Method partly copied from SettingsStage)
+		int closestHeight = 0, closestWidth = 0;
+
+		for (DisplayMode suppported : modes) {
+			if (height == suppported.height && width == suppported.width) {
+				// System.out.println("Perfect match found: height = " + height + ", width = " + width);
+				closestHeight = height;
+				closestWidth = width;
+				break;
+			} else {
+				if (closestHeight == 0 || closestWidth == 0) {
+					closestHeight = suppported.height;
+					closestWidth = suppported.width;
+				} else if (Utils.bestMatch(suppported.height, height, closestHeight, height) || Utils.bestMatch(suppported.width, width, closestWidth, width)) {
+					// If this is true than this display mode is the best we found (yet).
+					// System.out.println("Best match: " + suppported.height + "*" + suppported.width);
+					closestHeight = suppported.height;
+					closestWidth = suppported.width;
+				}
+			}
+		}
+
+		if (closestHeight == 0 || closestWidth == 0) {
+			return null;
+		}
+		System.out.println("Using this display mode: height = " + closestHeight + ", width = " + closestWidth);
+		return new java.awt.DisplayMode(closestWidth, closestHeight, 0, 0); // Only a dummy object, ignore refresh & bit values
 	}
 
 	public static void restart() {
