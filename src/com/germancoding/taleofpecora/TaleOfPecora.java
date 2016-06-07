@@ -170,15 +170,14 @@ public class TaleOfPecora extends ApplicationAdapter {
 				instance.dispose();
 			}
 		});
-		// Wait until we're fully ready to start (safer) but continue after 5 seconds if we don't get a notify()
-		synchronized (this) {
-			try {
-				long start = System.currentTimeMillis();
-				System.out.println("Wait start");
-				this.wait(5000);
-				System.out.println("Wait end - " + (System.currentTimeMillis() - start));
-			} catch (InterruptedException e) {
-				;
+		if (config == null) { // If the system is fast we're already ready and don't need to wait.
+			// Wait until we're fully ready to start (safer) but continue after 5 seconds if we don't get a notify()
+			synchronized (this) {
+				try {
+					this.wait(5000);
+				} catch (InterruptedException e) {
+					;
+				}
 			}
 		}
 
@@ -189,14 +188,14 @@ public class TaleOfPecora extends ApplicationAdapter {
 		}
 		config.load();
 		/*
-		scheduler = new Scheduler();
-		System.out.println(Gdx.app.getGraphics().getWidth());
-		Constants.GAME_HEIGHT = Gdx.app.getGraphics().getWidth();
-		Constants.GAME_WIDTH = Gdx.app.getGraphics().getHeight();
-		Constants.FULLSCREEN = Gdx.app.getGraphics().isFullscreen();
-		config.updateGraphicSettings();
-		config.saveAsync();
-		*/
+		 * scheduler = new Scheduler();
+		 * System.out.println(Gdx.app.getGraphics().getWidth());
+		 * Constants.GAME_HEIGHT = Gdx.app.getGraphics().getWidth();
+		 * Constants.GAME_WIDTH = Gdx.app.getGraphics().getHeight();
+		 * Constants.FULLSCREEN = Gdx.app.getGraphics().isFullscreen();
+		 * config.updateGraphicSettings();
+		 * config.saveAsync();
+		 */
 		showMainMenu();
 		/*
 		 * // Load assets
