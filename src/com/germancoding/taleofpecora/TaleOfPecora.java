@@ -87,7 +87,7 @@ public class TaleOfPecora extends ApplicationAdapter {
 		instance = this;
 	}
 
-	public float[] levels = { 190f, 30f }; // Length of the different levels
+	public float[] levels = { 190f, 100f }; // Length of the different levels
 
 	public InputProcessor mainInputProcessor = new InputProcessor() {
 

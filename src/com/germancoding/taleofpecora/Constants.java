@@ -55,6 +55,8 @@ public class Constants {
 	public static float KNIGHT_SPEED = PLAYER_SPEED / 3;
 	public static float PLATFORM_SPEED = 1f;
 	public static long DEATH_TIME = 2000; // Time in milliseconds to continue playing after the player died (death animation) - does not apply if player is out of the world
+	public static long REGENERATION_DELAY = 5000l; // Time in milliseconds after we will start regenerate the player if he was damaged
+	public static float REGENERATION_SPEED = 0.1f; // 0.1 units per second regeneration = 10 seconds until full health restored
 
 	// Points
 	public static int POINTS_PER_STAR = 500;

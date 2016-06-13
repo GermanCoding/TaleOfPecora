@@ -165,7 +165,8 @@ public class Sheep extends com.germancoding.taleofpecora.entity.LivingEntity imp
 
 		// rayCast(delta);
 
-		// Step 3: movement
+		// Step 3: movement & update
+		tick(delta);
 		move(delta);
 
 		// Step 4: Collision

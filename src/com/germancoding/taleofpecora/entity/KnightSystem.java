@@ -156,9 +156,11 @@ public class KnightSystem extends IteratingSystem {
 			}
 		}
 
+		knight.tick(deltaTime);
 		knight.move(deltaTime);
 		if (!player.isDying) {
 			if (playerHitKnight(knight)) {
+				Gdx.app.debug("[KnightSystem]", "killing a knight - player detection");
 				kill(knight);
 			} else if (knightHitPlayer(knight)) {
 				Gdx.app.debug("[KnightSystem]", "killing the player");
@@ -171,7 +173,6 @@ public class KnightSystem extends IteratingSystem {
 	public static void kill(final Knight knight) {
 		if (knight.isDying)
 			return;
-		Gdx.app.debug("[KnightSystem]", "killing a knight");
 		knight.isDying = true;
 		/*
 		 * CompositeItemVO vo = TaleOfPecora.instance.getSceneLoader().loadVoFromLibrary("knightDead");

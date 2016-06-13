@@ -7,6 +7,7 @@ package com.germancoding.taleofpecora.entity;
 
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.RayCastCallback;
@@ -45,12 +46,31 @@ public abstract class LivingEntity {
 	public boolean applyGravity = true;
 	public boolean inWater;
 	public boolean onMoveableObject;
+	protected float health;
+	protected boolean regenerate;
 
 	public LivingEntity(World world, TaleOfPecora game) {
 		this.world = world;
 		this.game = game;
+		health = 1f;
 		if (this instanceof Sheep)
 			isPlayer = true;
+	}
+
+	public void setHealth(float newHealth) {
+		if (newHealth < 0) {
+			newHealth = 0;
+		}
+		health = newHealth;
+		if (health <= 0) {
+			if (isPlayer || this instanceof Sheep) {
+				Sheep sheep = (Sheep) this;
+				sheep.explode();
+			}
+			die();
+		} else {
+			TaleOfPecora.instance.scheduler.runTask(regeneration, Constants.REGENERATION_DELAY);
+		}
 	}
 
 	public void jump(float height) {
@@ -115,8 +135,29 @@ public abstract class LivingEntity {
 			onMoveableObject = false;
 		}
 
-		transform.x += velocity.x * delta;
-		transform.y += velocity.y * delta;
+		if (physics != null) {
+			float newX = (this.physics.body.getPosition().x) + (this.velocity.x * delta * PhysicsBodyLoader.getScale());
+			float newY = (this.physics.body.getPosition().y) + (this.velocity.y * delta * PhysicsBodyLoader.getScale());
+
+			// System.out.println(platform.velocity.x * delta);
+			// System.out.println(platform.transform.x);
+
+			this.physics.body.setTransform(newX, newY, this.physics.body.getAngle());
+		} else {
+			transform.x += velocity.x * delta;
+			transform.y += velocity.y * delta;
+		}
+	}
+
+	public void tick(float delta) {
+		if (regenerate) {
+			health += Constants.REGENERATION_SPEED * delta;
+			if (health >= 1f) {
+				health = 1f;
+				regenerate = false;
+				System.out.println("Regeneration complete");
+			}
+		}
 	}
 
 	public float getCenter() {
@@ -303,7 +344,9 @@ public abstract class LivingEntity {
 				velocity.y = -0.5f;
 				transform.y -= 1.5f * delta;
 
-				onGround = false;
+				if (onGround) {
+					setHealth(health -= 1 * delta);
+				}
 				jumpCounter = 2; // Prevent double jumps through walls
 
 				// transform.y = point.y / PhysicsBodyLoader.getScale() + 0.001f;
@@ -401,6 +444,15 @@ public abstract class LivingEntity {
 			} else {
 				return 1;
 			}
+		}
+	};
+
+	private Runnable regeneration = new Runnable() {
+
+		@Override
+		public void run() {
+			System.out.println("Start regeneration - " + health);
+			regenerate = true;
 		}
 	};
 
