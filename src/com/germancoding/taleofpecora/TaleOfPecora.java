@@ -676,11 +676,6 @@ public class TaleOfPecora extends ApplicationAdapter {
 
 			@Override
 			public void run() {
-				try {
-					Thread.sleep(300);
-				} catch (InterruptedException e) {
-					;
-				}
 				doReset = true;
 			}
 		}, 300);
