@@ -672,7 +672,7 @@ public class TaleOfPecora extends ApplicationAdapter {
 
 	public void reset() {
 		paused = true;
-		new Thread(new Runnable() {
+		scheduler.runTask(new Runnable() {
 
 			@Override
 			public void run() {
@@ -683,7 +683,7 @@ public class TaleOfPecora extends ApplicationAdapter {
 				}
 				doReset = true;
 			}
-		}).start();
+		}, 300);
 	}
 
 	public void doFullRestart() {
