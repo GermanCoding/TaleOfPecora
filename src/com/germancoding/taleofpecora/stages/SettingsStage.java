@@ -60,9 +60,23 @@ public class SettingsStage extends Stage {
 		CompositeItemVO item = info.libraryItems.get("settingsMenu");
 		menuActor = new CompositeActor(item, ir);
 		float scale = 1f / TaleOfPecora.instance.camera.zoom;
+		Gdx.app.debug("[SettigsStage]", "Width:" + getWidth());
+		Gdx.app.debug("[SettigsStage]", "Height:" + getHeight());
+		Gdx.app.debug("[SettigsStage]", "menuActor width: " + menuActor.getWidth());
+		Gdx.app.debug("[SettigsStage]", "menuActor height: " + menuActor.getHeight());
 		menuActor.setScale(scale);
 		float x = (getWidth() / 2) - (menuActor.getWidth() * scale / 2);
 		float y = (getHeight() / 2) - (menuActor.getHeight() * scale / 2);
+		Gdx.app.debug("[SettigsStage]", "menuActor width scaled : " + menuActor.getWidth() * scale);
+		Gdx.app.debug("[SettigsStage]", "menuActor height scaled : " + menuActor.getHeight() * scale);
+		Gdx.app.debug("[SettigsStage]", "x:" + x);
+		Gdx.app.debug("[SettigsStage]", "y:" + y);
+		if (x < 0) {
+			x = 0;
+		}
+		if (y < 0) {
+			y = 0;
+		}
 		menuActor.setPosition(x, y);
 		menuActor.setTouchable(Touchable.childrenOnly); // The actor is the full menu screen, only the parts (buttons...) should be clickable/touchable
 
@@ -282,7 +296,7 @@ public class SettingsStage extends Stage {
 					@Override
 					public void clicked(InputEvent event, float x, float y) {
 						TaleOfPecora.instance.settings = null;
-						TaleOfPecora.instance.showMainMenu();
+						goBack();
 					}
 				});
 			}
@@ -328,7 +342,7 @@ public class SettingsStage extends Stage {
 				if (keycode == Constants.GAME_BACK) {
 					// TODO: Save settings
 					TaleOfPecora.instance.settings = null;
-					TaleOfPecora.instance.showMainMenu();
+					goBack();
 					return true;
 				}
 				return false;
@@ -373,7 +387,7 @@ public class SettingsStage extends Stage {
 		if (closestHeight == 0 || closestWidth == 0) {
 			return null;
 		}
-		System.out.println("Using this display mode: height = " + closestHeight + ", width = " + closestWidth);
+		Gdx.app.debug("[SettigsStage]", "Using this display mode: height = " + closestHeight + ", width = " + closestWidth);
 		return new java.awt.DisplayMode(closestWidth, closestHeight, 0, 0); // Only a dummy object, ignore refresh & bit values
 	}
 
@@ -443,13 +457,24 @@ public class SettingsStage extends Stage {
 						TaleOfPecora.instance.doFullRestart();
 					} else {
 						TaleOfPecora.instance.settings = null;
-						TaleOfPecora.instance.showMainMenu();
+						goBack();
 					}
 				}
 			}, this);
 		} else {
 			TaleOfPecora.instance.settings = null;
+			goBack();
+		}
+	}
+	
+	public void goBack() {
+		if(TaleOfPecora.instance.currentScene.sceneName.equalsIgnoreCase("emptyScene")) {
 			TaleOfPecora.instance.showMainMenu();
+		} else {
+			TaleOfPecora.instance.renderMenu = false;
+			if(TaleOfPecora.instance.activePause) {
+				TaleOfPecora.instance.setActivePause(false);
+			}
 		}
 	}
 

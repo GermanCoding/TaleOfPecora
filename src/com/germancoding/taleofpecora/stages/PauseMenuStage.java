@@ -14,30 +14,26 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.germancoding.taleofpecora.TaleOfPecora;
-import com.germancoding.taleofpecora.Utils;
 import com.uwsoft.editor.renderer.data.CompositeItemVO;
 import com.uwsoft.editor.renderer.data.ProjectInfoVO;
 import com.uwsoft.editor.renderer.resources.IResourceRetriever;
 import com.uwsoft.editor.renderer.scene2d.CompositeActor;
 
-public class LevelSelectStage extends Stage {
+public class PauseMenuStage extends Stage {
 
 	ProjectInfoVO info;
 	CompositeActor menuActor;
 
-	public LevelSelectStage(IResourceRetriever ir) {
-		Gdx.input.setInputProcessor(this);
+	public PauseMenuStage(final IResourceRetriever ir) {
 		info = ir.getProjectVO();
-		float scale = 1 / TaleOfPecora.instance.camera.zoom;
+		Gdx.input.setInputProcessor(this);
 
-		CompositeItemVO item = info.libraryItems.get("levelSelect");
+		CompositeItemVO item = info.libraryItems.get("pauseMenu");
 		menuActor = new CompositeActor(item, ir);
-
+		float scale = 1 / TaleOfPecora.instance.camera.zoom;
 		menuActor.setScale(scale);
-
 		float x = (getWidth() / 2) - (menuActor.getWidth() * scale / 2);
 		float y = (getHeight() / 2) - (menuActor.getHeight() * scale / 2);
-		
 		if (x < 0) {
 			x = 0;
 		}
@@ -45,7 +41,7 @@ public class LevelSelectStage extends Stage {
 			y = 0;
 		}
 		menuActor.setPosition(x, y);
-		menuActor.setTouchable(Touchable.childrenOnly);
+		menuActor.setTouchable(Touchable.childrenOnly); // The actor is the full menu screen, only the parts (buttons...) should be clickable/touchable.
 
 		// Click actions
 		for (Actor cButton : menuActor.getItemsByTag("button")) {
@@ -55,33 +51,28 @@ public class LevelSelectStage extends Stage {
 			else
 				continue; // Ignore buttons that aren't composite items. Should not happen unless we have errors somewhere.
 
-			if (Utils.isInteger(button.getName())) {
-				final int level = Integer.parseInt(button.getName());
-				final int layerIndex = button.getLayerIndex("locked");
-				if (!button.getVo().composite.layers.get(layerIndex).isVisible) {
-					button.addListener(new ClickListener() {
-						@Override
-						public void clicked(InputEvent event, float x, float y) {
-							TaleOfPecora.instance.loadLevel(level - 1);
-							TaleOfPecora.instance.renderMenu = false;
-						}
-					});
-				}
-			} else if (button.getName().equalsIgnoreCase("playButton")) {
+			if (button.getName().equalsIgnoreCase("resumeButton")) {
 				button.addListener(new ClickListener() {
 					@Override
 					public void clicked(InputEvent event, float x, float y) {
-						// TODO: Dispose menu to save memory, but: This could cause exceptions if no waiting algorithm is present because we have to wait for the dispose to finish
-						TaleOfPecora.instance.loadLevel();
+						TaleOfPecora.instance.setActivePause(false);
 						TaleOfPecora.instance.renderMenu = false;
+						Gdx.input.setInputProcessor(TaleOfPecora.instance.mainInputProcessor);
 					}
 				});
-			} else if (button.getName().equalsIgnoreCase("backToMenuButton")) {
+			} else if (button.getName().equalsIgnoreCase("settingsButton")) {
 				button.addListener(new ClickListener() {
 					@Override
 					public void clicked(InputEvent event, float x, float y) {
-						TaleOfPecora.instance.levelSelect = null;
-						TaleOfPecora.instance.showMainMenu();
+						TaleOfPecora.instance.pauseMenu = null;
+						TaleOfPecora.instance.settings = new SettingsStage(ir);
+					}
+				});
+			} else if (button.getName().equalsIgnoreCase("exitButton")) {
+				button.addListener(new ClickListener() {
+					@Override
+					public void clicked(InputEvent event, float x, float y) {
+						Gdx.app.exit();
 					}
 				});
 			}
@@ -92,12 +83,9 @@ public class LevelSelectStage extends Stage {
 				public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
 					super.enter(event, x, y, pointer, fromActor);
 					final int layerIndex = button.getLayerIndex("pressed");
-					final int layerIndex2 = button.getLayerIndex("locked");
 					if (!button.getVo().composite.layers.get(layerIndex).isVisible) {
-						if (layerIndex2 <= -1 || !button.getVo().composite.layers.get(layerIndex2).isVisible) {
-							button.setLayerVisibility("hover", true);
-							button.setLayerVisibility("normal", false);
-						}
+						button.setLayerVisibility("hover", true);
+						button.setLayerVisibility("normal", false);
 					}
 				}
 
@@ -105,12 +93,9 @@ public class LevelSelectStage extends Stage {
 				public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
 					super.exit(event, x, y, pointer, toActor);
 					final int layerIndex = button.getLayerIndex("pressed");
-					final int layerIndex2 = button.getLayerIndex("locked");
 					if (!button.getVo().composite.layers.get(layerIndex).isVisible) {
-						if (layerIndex2 <= -1 || !button.getVo().composite.layers.get(layerIndex2).isVisible) {
-							button.setLayerVisibility("hover", false);
-							button.setLayerVisibility("normal", true);
-						}
+						button.setLayerVisibility("hover", false);
+						button.setLayerVisibility("normal", true);
 					}
 				}
 			});
@@ -129,5 +114,4 @@ public class LevelSelectStage extends Stage {
 		}
 		super.act(delta);
 	}
-
 }
