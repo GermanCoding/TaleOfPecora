@@ -25,7 +25,9 @@ public class ConfigStorage {
 
 	File storagePath;
 	File userStats;
+	File graphics;
 	JSONObject userStatsObject;
+	JSONObject graphicsObject;
 
 	private int lastSuccessfullLevel = -1;
 
@@ -54,7 +56,7 @@ public class ConfigStorage {
 		try {
 			String appdata = System.getenv("APPDATA"); // TODO: Only present on Windows
 			if (appdata == null) {
-				appdata = "";
+				appdata = ""; // Prevent NPE [new File(null) = NPE]
 			}
 			File folder = new File(appdata);
 
@@ -78,10 +80,17 @@ public class ConfigStorage {
 
 			userStats = new File(storagePath, "stats.json");
 			if (!userStats.exists()) {
-				makeDefault();
+				makeDefault(userStats);
 
 			}
 			userStatsObject = readJSON(userStats);
+
+			graphics = new File(storagePath, "graphics.json");
+			if (!graphics.exists()) {
+				makeDefault(graphics);
+			}
+			graphicsObject = readJSON(graphics);
+
 		} catch (IOException e) {
 			logger.error("IOException while initializing the data storage", e);
 			e.printStackTrace();
@@ -92,21 +101,23 @@ public class ConfigStorage {
 
 	}
 
-	private void makeDefault() throws IOException {
-		userStats.createNewFile();
-		FileWriter writer = new FileWriter(userStats);
+	private void makeDefault(File file) throws IOException {
+		if (!file.createNewFile()) {
+			throw new IOException("Creation of file " + file + " failed!");
+		}
+		FileWriter writer = new FileWriter(file);
 		writer.write("{}");
 		writer.close();
 	}
 
 	public void loadGraphicSettings() {
-		Constants.GAME_WIDTH = userStatsObject.optInt(PROFILE_NAME + ".graphic.width", Constants.GAME_WIDTH);
-		Constants.GAME_HEIGHT = userStatsObject.optInt(PROFILE_NAME + ".graphic.height", Constants.GAME_HEIGHT);
-		Constants.GL3_0 = userStatsObject.optBoolean(PROFILE_NAME + ".graphic.gl3", Constants.GL3_0);
-		Constants.TARGET_FPS = userStatsObject.optInt(PROFILE_NAME + ".graphic.fps", Constants.TARGET_FPS);
-		Constants.FULLSCREEN = userStatsObject.optBoolean(PROFILE_NAME + ".graphic.fullscreen", Constants.FULLSCREEN);
-		Constants.VSYNC = userStatsObject.optBoolean(PROFILE_NAME + ".graphic.vsync", Constants.VSYNC);
-		Constants.MSAA = userStatsObject.optInt(PROFILE_NAME + ".graphic.msaa", Constants.MSAA);
+		Constants.GAME_WIDTH = graphicsObject.optInt(PROFILE_NAME + ".graphic.width", Constants.GAME_WIDTH);
+		Constants.GAME_HEIGHT = graphicsObject.optInt(PROFILE_NAME + ".graphic.height", Constants.GAME_HEIGHT);
+		Constants.GL3_0 = graphicsObject.optBoolean(PROFILE_NAME + ".graphic.gl3", Constants.GL3_0);
+		Constants.TARGET_FPS = graphicsObject.optInt(PROFILE_NAME + ".graphic.fps", Constants.TARGET_FPS);
+		Constants.FULLSCREEN = graphicsObject.optBoolean(PROFILE_NAME + ".graphic.fullscreen", Constants.FULLSCREEN);
+		Constants.VSYNC = graphicsObject.optBoolean(PROFILE_NAME + ".graphic.vsync", Constants.VSYNC);
+		Constants.MSAA = graphicsObject.optInt(PROFILE_NAME + ".graphic.msaa", Constants.MSAA);
 	}
 
 	public void loadProgressSettings() {
@@ -123,20 +134,29 @@ public class ConfigStorage {
 	}
 
 	public void updateGraphicSettings() {
-		update(PROFILE_NAME + ".graphic.width", Constants.GAME_WIDTH);
-		update(PROFILE_NAME + ".graphic.height", Constants.GAME_HEIGHT);
-		update(PROFILE_NAME + ".graphic.gl3", Constants.GL3_0);
-		update(PROFILE_NAME + ".graphic.fps", Constants.TARGET_FPS);
-		update(PROFILE_NAME + ".graphic.fullscreen", Constants.FULLSCREEN);
-		update(PROFILE_NAME + ".graphic.vsync", Constants.VSYNC);
-		update(PROFILE_NAME + ".graphic.msaa", Constants.MSAA);
+		updateGraphics(PROFILE_NAME + ".graphic.width", Constants.GAME_WIDTH);
+		updateGraphics(PROFILE_NAME + ".graphic.height", Constants.GAME_HEIGHT);
+		updateGraphics(PROFILE_NAME + ".graphic.gl3", Constants.GL3_0);
+		updateGraphics(PROFILE_NAME + ".graphic.fps", Constants.TARGET_FPS);
+		updateGraphics(PROFILE_NAME + ".graphic.fullscreen", Constants.FULLSCREEN);
+		updateGraphics(PROFILE_NAME + ".graphic.vsync", Constants.VSYNC);
+		updateGraphics(PROFILE_NAME + ".graphic.msaa", Constants.MSAA);
 	}
 
 	public void update(String key, Object value) {
 		try {
 			userStatsObject.putOpt(key, value);
 		} catch (JSONException e) {
-			logger.error("Failed to update JSON. The requested operation was: key: " + key + " | value: " + value, e);
+			logger.error("Failed to update JSON (user stats). The requested operation was: key: " + key + " | value: " + value, e);
+			e.printStackTrace();
+		}
+	}
+
+	public void updateGraphics(String key, Object value) {
+		try {
+			graphicsObject.putOpt(key, value);
+		} catch (JSONException e) {
+			logger.error("Failed to update JSON (graphics). The requested operation was: key: " + key + " | value: " + value, e);
 			e.printStackTrace();
 		}
 	}
@@ -149,6 +169,10 @@ public class ConfigStorage {
 	public void save() throws IOException {
 		FileWriter writer = new FileWriter(userStats);
 		writer.write(userStatsObject.toString());
+		writer.close();
+
+		writer = new FileWriter(graphics);
+		writer.write(graphicsObject.toString());
 		writer.close();
 	}
 
