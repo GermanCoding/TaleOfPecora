@@ -283,7 +283,7 @@ public class TaleOfPecora extends ApplicationAdapter {
 	public void loadLevel(int level) {
 		setPaused(true); // Overlap2D engine should not be updated [by render()] whilst we are initializing it
 		activePause = false; // New engine will be created, reset active pause
-		
+
 		String levelname = "level" + level;
 		if (level == 0) {
 			levelname = "MainScene";
