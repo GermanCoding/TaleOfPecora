@@ -7,7 +7,6 @@ package com.germancoding.taleofpecora.entity;
 
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.RayCastCallback;
@@ -135,18 +134,19 @@ public abstract class LivingEntity {
 			onMoveableObject = false;
 		}
 
-		if (physics != null) {
-			float newX = (this.physics.body.getPosition().x) + (this.velocity.x * delta * PhysicsBodyLoader.getScale());
-			float newY = (this.physics.body.getPosition().y) + (this.velocity.y * delta * PhysicsBodyLoader.getScale());
-
-			// System.out.println(platform.velocity.x * delta);
-			// System.out.println(platform.transform.x);
-
-			this.physics.body.setTransform(newX, newY, this.physics.body.getAngle());
-		} else {
-			transform.x += velocity.x * delta;
-			transform.y += velocity.y * delta;
-		}
+		/*
+		 * if (physics != null) {
+		 * float newX = (this.physics.body.getPosition().x) + (this.velocity.x * delta * PhysicsBodyLoader.getScale());
+		 * float newY = (this.physics.body.getPosition().y) + (this.velocity.y * delta * PhysicsBodyLoader.getScale());
+		 * // System.out.println(platform.velocity.x * delta);
+		 * // System.out.println(platform.transform.x);
+		 * this.physics.body.setTransform(newX, newY, this.physics.body.getAngle());
+		 * }
+		 * } else {
+		 */
+		transform.x += velocity.x * delta;
+		transform.y += velocity.y * delta;
+		// }
 	}
 
 	public void tick(float delta) {
