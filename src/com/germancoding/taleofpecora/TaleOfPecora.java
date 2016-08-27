@@ -5,7 +5,10 @@
  *******************************************************************************/
 package com.germancoding.taleofpecora;
 
+import java.util.Iterator;
+
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -36,6 +39,7 @@ import com.germancoding.taleofpecora.stages.BackgroundStage;
 import com.germancoding.taleofpecora.stages.LevelFinishedStage;
 import com.germancoding.taleofpecora.stages.LevelSelectStage;
 import com.germancoding.taleofpecora.stages.MainMenuStage;
+import com.germancoding.taleofpecora.stages.PauseMenuStage;
 import com.germancoding.taleofpecora.stages.SettingsStage;
 import com.germancoding.taleofpecora.stages.UIStage;
 import com.uwsoft.editor.renderer.SceneLoader;
@@ -43,6 +47,7 @@ import com.uwsoft.editor.renderer.components.additional.ButtonComponent;
 import com.uwsoft.editor.renderer.data.CompositeItemVO;
 import com.uwsoft.editor.renderer.data.SceneVO;
 import com.uwsoft.editor.renderer.data.SpriteAnimationVO;
+import com.uwsoft.editor.renderer.systems.render.Overlap2dRenderer;
 import com.uwsoft.editor.renderer.utils.ItemWrapper;
 
 public class TaleOfPecora extends ApplicationAdapter {
@@ -57,9 +62,7 @@ public class TaleOfPecora extends ApplicationAdapter {
 	// private WorldRenderer worldRenderer;
 
 	private SceneLoader sceneLoader;
-	private SceneVO currentScene;
-
-	// //
+	public SceneVO currentScene;
 	private ItemWrapper root;
 	public Sheep player;
 	public OrthographicCamera camera;
@@ -76,10 +79,12 @@ public class TaleOfPecora extends ApplicationAdapter {
 	public Level currentLevel;
 	public long startTime;
 	public BackgroundStage backgroundStage;
+	public PauseMenuStage pauseMenu;
 	public ConfigStorage config;
 	public UIHelper helper;
 	public Object mainThreadLock = new Object();
 	public Runnable restartRun;
+	public boolean activePause;
 
 	public TaleOfPecora() {
 		if (instance != null)
@@ -128,12 +133,17 @@ public class TaleOfPecora extends ApplicationAdapter {
 
 		@Override
 		public boolean keyDown(int keycode) {
-			if (keycode == Constants.GAME_PAUSE) {
-				setPaused(!isPaused());
+			if (keycode == Constants.GAME_PAUSE) { // We can't use a switch here
+				setActivePause(!activePause);
 				return true;
-			} else {
-				return false;
+			} else if (keycode == Constants.GAME_BACK) {
+				if (!isPaused() && !activePause && !renderMenu && currentLevel != null) {
+					setActivePause(true);
+					showPauseMenu();
+					return true;
+				}
 			}
+			return false;
 		}
 	};
 
@@ -220,6 +230,14 @@ public class TaleOfPecora extends ApplicationAdapter {
 		setPaused(false);
 	}
 
+	// This method should only be called when there is a running level
+	public void showPauseMenu() {
+		setPaused(true);
+		pauseMenu = new PauseMenuStage(sceneLoader.getRm());
+		renderMenu = true;
+		setPaused(false);
+	}
+
 	public void showSettings() {
 		setPaused(true);
 		Viewport viewport = new FitViewport(Gdx.app.getGraphics().getWidth() / 80f, Gdx.app.getGraphics().getHeight() / 80f);
@@ -264,6 +282,8 @@ public class TaleOfPecora extends ApplicationAdapter {
 
 	public void loadLevel(int level) {
 		setPaused(true); // Overlap2D engine should not be updated [by render()] whilst we are initializing it
+		activePause = false; // New engine will be created, reset active pause
+		
 		String levelname = "level" + level;
 		if (level == 0) {
 			levelname = "MainScene";
@@ -318,6 +338,10 @@ public class TaleOfPecora extends ApplicationAdapter {
 		if (levelSelect != null) {
 			levelSelect.dispose();
 		}
+		if (pauseMenu != null) {
+			pauseMenu.dispose();
+		}
+		pauseMenu = null;
 		levelSelect = null;
 		settings = null;
 		renderMenu = false;
@@ -392,6 +416,10 @@ public class TaleOfPecora extends ApplicationAdapter {
 				levelSelect.act();
 				levelSelect.draw();
 			}
+			if (pauseMenu != null) {
+				pauseMenu.act();
+				pauseMenu.draw();
+			}
 		} else {
 			// Render game world to screen
 			// worldRenderer.render();
@@ -435,6 +463,19 @@ public class TaleOfPecora extends ApplicationAdapter {
 			gui.act();
 			gui.draw();
 		}
+	}
+
+	public void setActivePause(boolean on) {
+		activePause = on;
+		Iterator<EntitySystem> entitySystems = sceneLoader.getEngine().getSystems().iterator();
+		while (entitySystems.hasNext()) {
+			EntitySystem system = entitySystems.next();
+			// System.out.println(system);
+			if (system instanceof Overlap2dRenderer)
+				continue; // Never touch the renderer
+			system.setProcessing(!on);
+		}
+		Gdx.input.setInputProcessor(mainInputProcessor);
 	}
 
 	public void showYesNoDialog(String title, String text, final DialogCallback callback, Stage stage) {

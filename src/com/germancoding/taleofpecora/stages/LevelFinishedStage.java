@@ -45,6 +45,12 @@ public class LevelFinishedStage extends Stage {
 		float x = (getWidth() / 2) - (menuActor.getWidth() * scale / 2);
 		float y = (getHeight() / 2) - (menuActor.getHeight() * scale / 2);
 
+		if (x < 0) {
+			x = 0;
+		}
+		if (y < 0) {
+			y = 0;
+		}
 		menuActor.setPosition(x, y);
 		menuActor.setTouchable(Touchable.childrenOnly);
 

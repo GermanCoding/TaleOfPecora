@@ -40,8 +40,8 @@ public class Constants {
 	public static int CONTROLS_UP = Input.Keys.W;
 	public static int CONTROLS_DOWN = Input.Keys.S;
 	public static int CONTROLS_JUMP = Input.Keys.SPACE;
-	public static int GAME_PAUSE = Input.Keys.P;
-	public static int GAME_BACK = Input.Keys.ESCAPE;
+	public static int GAME_PAUSE = Input.Keys.P; // Pause 1
+	public static int GAME_BACK = Input.Keys.ESCAPE; // Pause 2
 
 	// --- Menu settings end --- //
 
