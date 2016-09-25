@@ -27,7 +27,7 @@ public class Credits implements IScript {
 
 	@Override
 	public void init(Entity entity) {
-		Gdx.input.setInputProcessor(new InputProcessor() {
+		Gdx.input.setInputProcessor(new InputProcessor() { // We need a better input processing system instead of overriding it everywhere
 
 			@Override
 			public boolean touchUp(int screenX, int screenY, int pointer, int button) {
@@ -81,13 +81,13 @@ public class Credits implements IScript {
 		DimensionsComponent dimension = credits.getEntity().getComponent(DimensionsComponent.class);
 
 		camera = TaleOfPecora.instance.camera;
-		camera.translate(new Vector3(transform.x, transform.y + dimension.height, camera.position.z));
+		camera.translate(new Vector3(transform.x, transform.y + dimension.height, camera.position.z)); // Cam must be above the credits
 		camera.update();
 	}
 
 	@Override
 	public void act(float delta) {
-		camera.translate(0, -0.7f * delta, 0);
+		camera.translate(0, -0.7f * delta, 0); // Slowly move the cam down - creates the scrolling text effect
 		// camera.update();
 	}
 

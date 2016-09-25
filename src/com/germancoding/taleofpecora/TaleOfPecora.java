@@ -7,6 +7,7 @@ package com.germancoding.taleofpecora;
 
 import java.util.Iterator;
 
+import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.gdx.Application;
@@ -62,6 +63,7 @@ public class TaleOfPecora extends ApplicationAdapter {
 	// private WorldRenderer worldRenderer;
 
 	private SceneLoader sceneLoader;
+	private Engine engine;
 	public SceneVO currentScene;
 	private ItemWrapper root;
 	public Sheep player;
@@ -227,6 +229,7 @@ public class TaleOfPecora extends ApplicationAdapter {
 		backgroundStage = new BackgroundStage(sceneLoader.getRm());
 		helper = new UIHelper();
 		renderMenu = true;
+		engine = sceneLoader.getEngine();
 		setPaused(false);
 	}
 
@@ -249,6 +252,7 @@ public class TaleOfPecora extends ApplicationAdapter {
 		backgroundStage = new BackgroundStage(sceneLoader.getRm());
 		helper = new UIHelper();
 		renderMenu = true;
+		engine = sceneLoader.getEngine();
 		setPaused(false);
 	}
 
@@ -263,6 +267,7 @@ public class TaleOfPecora extends ApplicationAdapter {
 		backgroundStage = new BackgroundStage(sceneLoader.getRm());
 		helper = new UIHelper();
 		renderMenu = true;
+		engine = sceneLoader.getEngine();
 		setPaused(false);
 	}
 
@@ -311,13 +316,14 @@ public class TaleOfPecora extends ApplicationAdapter {
 		sceneLoader.addComponentsByTagName("carrot", Carrot.class);
 		sceneLoader.addComponentsByTagName("platform", Platform.class);
 		sceneLoader.addComponentsByTagName("button", ButtonComponent.class);
-		sceneLoader.getEngine().addSystem(new KnightSystem());
-		sceneLoader.getEngine().addSystem(new CarrotSystem());
-		sceneLoader.getEngine().addSystem(new PlatformSystem());
+		engine.addSystem(new KnightSystem());
+		engine.addSystem(new CarrotSystem());
+		engine.addSystem(new PlatformSystem());
 		scheduler = new Scheduler();
 		sound = new SoundController();
 		backgroundStage = new BackgroundStage(sceneLoader.getRm());
 		helper = new UIHelper();
+		engine = sceneLoader.getEngine();
 
 		player.firstFrame = true;
 		currentLevel = new Level(level, levels[level]);
@@ -363,12 +369,14 @@ public class TaleOfPecora extends ApplicationAdapter {
 		ItemWrapper credits = root.getChild("credits");
 		credits.addScript(new Credits(credits));
 		backgroundStage = new BackgroundStage(sceneLoader.getRm());
+		engine = sceneLoader.getEngine();
 		setPaused(false);
 	}
 
 	@Override
 	public void render() {
 		if (paused) {
+			// When fully paused, we never render (activePause can be used to pause the game but still providing a full render of the screen). The only thing that can be done while paused is to reset the level.
 			if (doReset) {
 				doReset = false;
 				int level = this.currentLevel.getId();
@@ -387,6 +395,17 @@ public class TaleOfPecora extends ApplicationAdapter {
 			}
 			return;
 		}
+
+		/*
+		 * Rendering currently has multiple stages - elements are drawn on top of each other. We render in this order:
+		 * 0. Clear the screen - the "default color" is "Cornflower Blue" (if nothing else is drawn this color will be visible)
+		 * 1. Draw background on the full screen (backgroundStage)
+		 * 2. Draw the menu stages if any and if in the menu-rendering mode
+		 * 3. Update camera
+		 * 4. Update and draw everything game related [engine.update()]
+		 * 5. Draw GUI stage
+		 */
+
 		// Sets the clear screen color to: Cornflower Blue
 		Gdx.gl.glClearColor(0, 0, 0.2f, 1);
 		// Gdx.gl.glClearColor(0x64 / 255.0f, 0x95 / 255.0f, 0xed / 255.0f, 0xff / 255.0f);
@@ -398,7 +417,7 @@ public class TaleOfPecora extends ApplicationAdapter {
 		// renderBackground();
 
 		if (renderMenu) {
-			sceneLoader.getEngine().update(Gdx.graphics.getDeltaTime());
+			engine.update(Gdx.graphics.getDeltaTime());
 
 			if (mainMenu != null) {
 				mainMenu.act();
@@ -433,12 +452,12 @@ public class TaleOfPecora extends ApplicationAdapter {
 			/*
 			 * THIS IS GOOD DEBUG CODE - IF YOU HAVE NPE's DUE TO CORRUPT ENTITIES IN PhysicsSystem, USE THIS TO EXTRACT THE ENTITY-ID!
 			 * System.out.println("Listing entities without body (no polygons mostly) in PhysicsSystem:");
-			 * for (Entity e : sceneLoader.getEngine().getSystem(PhysicsSystem.class).getEntities()) {
+			 * for (Entity e : engine.getSystem(PhysicsSystem.class).getEntities()) {
 			 * try {
 			 * // processBody() is a protected method, unaccessible for us. Doesn't matter, we have reflection hacks! Performance doesn't matter, this is debug code.
-			 * Method method = sceneLoader.getEngine().getSystem(PhysicsSystem.class).getClass().getDeclaredMethod("processBody", Entity.class);
+			 * Method method = engine.getSystem(PhysicsSystem.class).getClass().getDeclaredMethod("processBody", Entity.class);
 			 * method.setAccessible(true); // Love that call. Private, protected, final? Not with reflection!
-			 * method.invoke(sceneLoader.getEngine().getSystem(PhysicsSystem.class), e);
+			 * method.invoke(engine.getSystem(PhysicsSystem.class), e);
 			 * } catch (NoSuchMethodException e1) {
 			 * e1.printStackTrace();
 			 * } catch (SecurityException e1) {
@@ -459,7 +478,7 @@ public class TaleOfPecora extends ApplicationAdapter {
 			 * }
 			 * }
 			 */
-			sceneLoader.getEngine().update(Gdx.graphics.getDeltaTime());
+			engine.update(Gdx.graphics.getDeltaTime());
 			gui.act();
 			gui.draw();
 		}
@@ -467,7 +486,7 @@ public class TaleOfPecora extends ApplicationAdapter {
 
 	public void setActivePause(boolean on) {
 		activePause = on;
-		Iterator<EntitySystem> entitySystems = sceneLoader.getEngine().getSystems().iterator();
+		Iterator<EntitySystem> entitySystems = engine.getSystems().iterator();
 		while (entitySystems.hasNext()) {
 			EntitySystem system = entitySystems.next();
 			// System.out.println(system);
@@ -558,6 +577,7 @@ public class TaleOfPecora extends ApplicationAdapter {
 
 	@Deprecated
 	public void renderBackground() {
+		Gdx.app.error(TAG, "deprecated background render was called!");
 		sceneLoader.getBatch().begin();
 		// sceneLoader.getBatch().draw(background, camera.position.x - (camera.viewportWidth * camera.zoom / 2), camera.position.y - (camera.viewportHeight * camera.zoom / 2), camera.viewportWidth * camera.zoom, camera.viewportHeight * camera.zoom);
 		sceneLoader.getBatch().end();
@@ -617,6 +637,10 @@ public class TaleOfPecora extends ApplicationAdapter {
 		if (helper != null) {
 			helper.dispose();
 		}
+		if(engine != null) {
+			engine.removeAllEntities();
+		}
+		engine = null;
 		helper = null;
 		levelSelect = null;
 		mainMenu = null;
