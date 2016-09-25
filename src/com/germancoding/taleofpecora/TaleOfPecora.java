@@ -316,6 +316,7 @@ public class TaleOfPecora extends ApplicationAdapter {
 		sceneLoader.addComponentsByTagName("carrot", Carrot.class);
 		sceneLoader.addComponentsByTagName("platform", Platform.class);
 		sceneLoader.addComponentsByTagName("button", ButtonComponent.class);
+		engine = sceneLoader.getEngine();
 		engine.addSystem(new KnightSystem());
 		engine.addSystem(new CarrotSystem());
 		engine.addSystem(new PlatformSystem());
@@ -323,7 +324,6 @@ public class TaleOfPecora extends ApplicationAdapter {
 		sound = new SoundController();
 		backgroundStage = new BackgroundStage(sceneLoader.getRm());
 		helper = new UIHelper();
-		engine = sceneLoader.getEngine();
 
 		player.firstFrame = true;
 		currentLevel = new Level(level, levels[level]);
