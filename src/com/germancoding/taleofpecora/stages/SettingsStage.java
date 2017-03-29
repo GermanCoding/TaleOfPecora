@@ -263,12 +263,20 @@ public class SettingsStage extends Stage {
 			public void changed(ChangeEvent event, Actor actor) {
 				if (fullField.isChecked()) {
 					if (Gdx.graphics.supportsDisplayModeChange()) {
-						java.awt.DisplayMode mode = getBestFullscreenMode();
-						Gdx.graphics.setDisplayMode(mode.getWidth(), mode.getHeight(), true);
+						DisplayMode mode = getBestFullscreenMode();
+						if(!Gdx.graphics.setDisplayMode(mode.width, mode.height, true)) {
+							 requireRestart = true;
+						}
+						// Gdx.graphics.setFullscreenMode(mode);
+						// Gdx.graphics.setDisplayMode(mode.getWidth(), mode.getHeight(), true);
 					}
 				} else {
 					if (Gdx.graphics.supportsDisplayModeChange()) {
-						Gdx.graphics.setDisplayMode(newWidth, newHeight, false);
+						if(!Gdx.graphics.setDisplayMode(newWidth, newHeight, false)) {
+							 requireRestart = true;
+						}
+						// Gdx.graphics.setWindowedMode(newWidth, newHeight);
+						// Gdx.graphics.setDisplayMode(newWidth, newHeight, false);
 					}
 				}
 				fullscreen = fullField.isChecked();
@@ -350,7 +358,7 @@ public class SettingsStage extends Stage {
 		});
 	}
 
-	public java.awt.DisplayMode getBestFullscreenMode() {
+	public java.awt.DisplayMode getBestFullscreenMode2() {
 		// DisplayMode mode = Gdx.graphics.getDesktopDisplayMode();
 		int height, width;
 		/*
@@ -391,6 +399,30 @@ public class SettingsStage extends Stage {
 		return new java.awt.DisplayMode(closestWidth, closestHeight, 0, 0); // Only a dummy object, ignore refresh & bit values
 	}
 
+	public DisplayMode getBestFullscreenMode() {
+		int height, width;
+		height = newHeight;
+		width = newWidth;
+
+		int bestDelta = Integer.MAX_VALUE;
+		DisplayMode best = null;
+
+		for (DisplayMode supported : Gdx.graphics.getDisplayModes()) {
+			if (height == supported.height && width == supported.width) {
+				return supported;
+			} else {
+				int deltaH = Utils.differ(supported.height, height);
+				int deltaW = Utils.differ(supported.width, width);
+				int delta = deltaH + deltaW;
+				if (delta < bestDelta) {
+					best = supported;
+				}
+			}
+		}
+
+		return best;
+	}
+
 	public void reparseSettingsIgnoreWrong() {
 		newWidth = parseIntNoError(textField.getText(), newWidth);
 		newHeight = parseIntNoError(heightField.getText(), newHeight);
@@ -419,14 +451,30 @@ public class SettingsStage extends Stage {
 		if (Constants.FULLSCREEN != fullscreen) {
 			if (fullField.isChecked()) {
 				if (Gdx.graphics.supportsDisplayModeChange()) {
-					java.awt.DisplayMode mode = getBestFullscreenMode();
-					Gdx.graphics.setDisplayMode(mode.getWidth(), mode.getHeight(), true);
+					DisplayMode mode = getBestFullscreenMode();
+					if(!Gdx.graphics.setDisplayMode(mode.width, mode.height, true)) {
+						requireRestart = true;
+					}
+					/*
+					if(!Gdx.graphics.setFullscreenMode(mode)) {
+						requireRestart = true;
+					}
+					*/
+					// Gdx.graphics.setDisplayMode(mode.getWidth(), mode.getHeight(), true);
 				} else {
 					requireRestart = true;
 				}
 			} else {
 				if (Gdx.graphics.supportsDisplayModeChange()) {
-					Gdx.graphics.setDisplayMode(newWidth, newHeight, false);
+					if(!Gdx.graphics.setDisplayMode(newWidth, newHeight, false)) {
+						 requireRestart = true;
+					}
+					/* 
+					if(!Gdx.graphics.setWindowedMode(newWidth, newHeight)) {
+						 requireRestart = true;
+					 }
+					 */
+					// Gdx.graphics.setDisplayMode(newWidth, newHeight, false);
 				} else {
 					requireRestart = true;
 				}
@@ -466,13 +514,13 @@ public class SettingsStage extends Stage {
 			goBack();
 		}
 	}
-	
+
 	public void goBack() {
-		if(TaleOfPecora.instance.currentScene.sceneName.equalsIgnoreCase("emptyScene")) {
+		if (TaleOfPecora.instance.currentScene.sceneName.equalsIgnoreCase("emptyScene")) {
 			TaleOfPecora.instance.showMainMenu();
 		} else {
 			TaleOfPecora.instance.renderMenu = false;
-			if(TaleOfPecora.instance.activePause) {
+			if (TaleOfPecora.instance.activePause) {
 				TaleOfPecora.instance.setActivePause(false);
 			}
 		}

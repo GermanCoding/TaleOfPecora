@@ -29,6 +29,10 @@ public class Utils {
 		int delta2 = Math.max(c, d) - Math.min(c, d);
 		return delta1 < delta2;
 	}
+	
+	public static int differ(int a, int b) {
+		return Math.max(a, b) - Math.min(a, b);
+	}
 
 	public static boolean isInteger(String s) {
 		try {

@@ -7,6 +7,7 @@ package com.germancoding.taleofpecora;
 
 import java.util.Iterator;
 
+import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntitySystem;
@@ -44,6 +45,8 @@ import com.germancoding.taleofpecora.stages.PauseMenuStage;
 import com.germancoding.taleofpecora.stages.SettingsStage;
 import com.germancoding.taleofpecora.stages.UIStage;
 import com.uwsoft.editor.renderer.SceneLoader;
+import com.uwsoft.editor.renderer.components.ActionComponent;
+import com.uwsoft.editor.renderer.components.TransformComponent;
 import com.uwsoft.editor.renderer.components.additional.ButtonComponent;
 import com.uwsoft.editor.renderer.data.CompositeItemVO;
 import com.uwsoft.editor.renderer.data.SceneVO;
@@ -325,6 +328,9 @@ public class TaleOfPecora extends ApplicationAdapter {
 		backgroundStage = new BackgroundStage(sceneLoader.getRm());
 		helper = new UIHelper();
 
+		// System.out.println(player.getTransform().y);
+		// player.getTransform().y -= 8;
+
 		player.firstFrame = true;
 		currentLevel = new Level(level, levels[level]);
 		Gdx.input.setInputProcessor(mainInputProcessor);
@@ -375,6 +381,12 @@ public class TaleOfPecora extends ApplicationAdapter {
 
 	@Override
 	public void render() {
+		float delta = Gdx.graphics.getDeltaTime();
+		if (delta > 1f) {
+			System.out.println("Capped delta");
+			delta = 0f; // We cap the delta to a maximum of 1, because else we will encounter issues with collision detection
+		}
+
 		if (paused) {
 			// When fully paused, we never render (activePause can be used to pause the game but still providing a full render of the screen). The only thing that can be done while paused is to reset the level.
 			if (doReset) {
@@ -383,7 +395,7 @@ public class TaleOfPecora extends ApplicationAdapter {
 				dispose();
 				synchronized (this) {
 					try {
-						this.wait(10);
+						this.wait(1000); // We give the engine some time to cleanup itself before we reload (crashes appear if we don't do this)
 					} catch (InterruptedException e) {
 						;
 					}
@@ -417,7 +429,7 @@ public class TaleOfPecora extends ApplicationAdapter {
 		// renderBackground();
 
 		if (renderMenu) {
-			engine.update(Gdx.graphics.getDeltaTime());
+			engine.update(delta);
 
 			if (mainMenu != null) {
 				mainMenu.act();
@@ -478,7 +490,7 @@ public class TaleOfPecora extends ApplicationAdapter {
 			 * }
 			 * }
 			 */
-			engine.update(Gdx.graphics.getDeltaTime());
+			engine.update(delta);
 			gui.act();
 			gui.draw();
 		}
@@ -637,9 +649,9 @@ public class TaleOfPecora extends ApplicationAdapter {
 		if (helper != null) {
 			helper.dispose();
 		}
-		if(engine != null) {
-			engine.removeAllEntities();
-		}
+		// if(engine != null) {
+		// !!!!!!!!!!! engine.removeAllEntities(); !!!!!!!!!!!!! // DO NOT CALL THIS OR YOU WILL GET A FATAL CRASH (probably an engine bug)
+		// }
 		engine = null;
 		helper = null;
 		levelSelect = null;
@@ -737,13 +749,16 @@ public class TaleOfPecora extends ApplicationAdapter {
 
 	public void reset() {
 		paused = true;
-		scheduler.runTask(new Runnable() {
-
-			@Override
-			public void run() {
-				doReset = true;
-			}
-		}, 300);
+		doReset = true;
+		/*
+		 * scheduler.runTask(new Runnable() {
+		 * @Override
+		 * public void run() {
+		 * System.out.println("doReset = true");
+		 * doReset = true;
+		 * }
+		 * }, 300);
+		 */
 	}
 
 	public void doFullRestart() {

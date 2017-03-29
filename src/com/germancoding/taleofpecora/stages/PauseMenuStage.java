@@ -31,9 +31,16 @@ public class PauseMenuStage extends Stage {
 		CompositeItemVO item = info.libraryItems.get("pauseMenu");
 		menuActor = new CompositeActor(item, ir);
 		float scale = 1 / TaleOfPecora.instance.camera.zoom;
+		scale -= 0.2f;  // - 0.2 is a hardcoded value to scale down this actor, since it was designed too big
 		menuActor.setScale(scale);
-		float x = (getWidth() / 2) - (menuActor.getWidth() * scale / 2);
-		float y = (getHeight() / 2) - (menuActor.getHeight() * scale / 2);
+		System.out.println("getWidth():" + getWidth());
+		System.out.println("getHeight():" + getHeight());
+		System.out.println("menuActor.getWidth():" + menuActor.getWidth() * scale);
+		System.out.println("menuActor.getHeight():" + menuActor.getHeight() * scale);
+		float x = (getWidth() / 2f) - (menuActor.getWidth() * scale / 2f);
+		float y = (getHeight() / 2f) - (menuActor.getHeight() * scale / 2f);
+		System.out.println("x:" + x);
+		System.out.println("y:" + y);
 		if (x < 0) {
 			x = 0;
 		}
