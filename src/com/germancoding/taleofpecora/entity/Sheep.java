@@ -148,19 +148,21 @@ public class Sheep extends com.germancoding.taleofpecora.entity.LivingEntity imp
 		}
 
 		// DEBUG CONTROLS
-		if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-			transform.y += 5f * delta;
-			velocity.y = 0;
-		}
-		if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-			transform.x += 5f * delta;
-		}
-		if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-			transform.x -= 5f * delta;
-		}
-		if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-			transform.y -= 5f * delta;
-			velocity.y = 0;
+		if (Constants.ENABLE_DEBUG_CONTROLS) {
+			if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
+				transform.y += 5f * delta;
+				velocity.y = 0;
+			}
+			if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+				transform.x += 5f * delta;
+			}
+			if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+				transform.x -= 5f * delta;
+			}
+			if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+				transform.y -= 5f * delta;
+				velocity.y = 0;
+			}
 		}
 
 		// rayCast(delta);

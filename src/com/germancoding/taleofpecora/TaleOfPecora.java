@@ -7,7 +7,6 @@ package com.germancoding.taleofpecora;
 
 import java.util.Iterator;
 
-import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntitySystem;
@@ -45,8 +44,6 @@ import com.germancoding.taleofpecora.stages.PauseMenuStage;
 import com.germancoding.taleofpecora.stages.SettingsStage;
 import com.germancoding.taleofpecora.stages.UIStage;
 import com.uwsoft.editor.renderer.SceneLoader;
-import com.uwsoft.editor.renderer.components.ActionComponent;
-import com.uwsoft.editor.renderer.components.TransformComponent;
 import com.uwsoft.editor.renderer.components.additional.ButtonComponent;
 import com.uwsoft.editor.renderer.data.CompositeItemVO;
 import com.uwsoft.editor.renderer.data.SceneVO;
@@ -145,6 +142,12 @@ public class TaleOfPecora extends ApplicationAdapter {
 				if (!isPaused() && !activePause && !renderMenu && currentLevel != null) {
 					setActivePause(true);
 					showPauseMenu();
+					return true;
+				}
+			} else if (keycode == Constants.ENABLE_CHEATS_2) {
+				if (Gdx.input.isKeyPressed(Constants.ENABLE_CHEATS_1)) {
+					Constants.ENABLE_DEBUG_CONTROLS = !Constants.ENABLE_DEBUG_CONTROLS;
+					Gdx.app.debug(TAG, "Debug controls set " + (Constants.ENABLE_DEBUG_CONTROLS ? "on" : "off"));
 					return true;
 				}
 			}

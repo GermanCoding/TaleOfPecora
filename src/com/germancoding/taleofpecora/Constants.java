@@ -42,6 +42,11 @@ public class Constants {
 	public static int CONTROLS_JUMP = Input.Keys.SPACE;
 	public static int GAME_PAUSE = Input.Keys.P; // Pause 1
 	public static int GAME_BACK = Input.Keys.ESCAPE; // Pause 2
+	
+	// Cheats/Debug
+	public static boolean ENABLE_DEBUG_CONTROLS = false;
+	public static int ENABLE_CHEATS_1 = Input.Keys.CONTROL_LEFT; // CTRL + C = Activate cheats/debug
+	public static int ENABLE_CHEATS_2 = Input.Keys.C;
 
 	// --- Menu settings end --- //
 
